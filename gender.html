@@ -6,14 +6,10 @@
     <title>About You - Rico Live</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="config.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
@@ -22,15 +18,12 @@
             flex-direction: column;
             padding: 20px;
         }
-        
-        /* Header */
         .header {
             display: flex;
             align-items: center;
             margin-bottom: 30px;
             padding-top: 10px;
         }
-        
         .back-btn {
             background: none;
             border: none;
@@ -47,37 +40,17 @@
             border-radius: 50%;
             transition: background 0.3s;
         }
-                .back-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-        
-        .header-text {
-            flex: 1;
-        }
-        
-        .section-label {
-            color: #00bcd4;
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        
-        .section-title {
-            color: #333;
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-        
-        /* Main Content */
+        .back-btn:hover { background: rgba(0, 0, 0, 0.05); }
+        .header-text { flex: 1; }
+        .section-label { color: #00bcd4; font-size: 1.1rem; font-weight: 500; margin-bottom: 5px; }
+        .section-title { color: #333; font-size: 1.8rem; font-weight: bold; }
         .content {
             flex: 1;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            flex-direction: column;            justify-content: center;
             gap: 40px;
             padding: 20px 0;
         }
-        
         .gender-option {
             display: flex;
             align-items: center;
@@ -90,33 +63,28 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             border: 3px solid transparent;
         }
-        
         .gender-option:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
         }
-        
-        .gender-option.selected {            border-color: #00bcd4;
+        .gender-option.selected {
+            border-color: #00bcd4;
             box-shadow: 0 6px 20px rgba(0, 188, 212, 0.2);
         }
-        
         .gender-option.male.selected {
             border-color: #4fc3f7;
             background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
         }
-        
         .gender-option.female.selected {
             border-color: #f06292;
             background: linear-gradient(135deg, #fce4ec 0%, #ffffff 100%);
         }
-        
         .gender-image {
             width: 100px;
             height: 100px;
             object-fit: cover;
             border-radius: 15px;
         }
-        
         .gender-label {
             flex: 1;
             text-align: center;
@@ -128,60 +96,45 @@
             background: #f5f5f5;
             transition: all 0.3s ease;
         }
-        
-        .gender-option.male.selected .gender-label {
-            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        .gender-option.male.selected .gender-label {            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(79, 195, 247, 0.4);
         }
-        
         .gender-option.female.selected .gender-label {
             background: linear-gradient(135deg, #f06292 0%, #ec407a 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(240, 98, 146, 0.4);
         }
-        
         .selection-indicator {
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            border: 3px solid #ddd;            display: flex;
+            border: 3px solid #ddd;
+            display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
         }
-        
         .gender-option.selected .selection-indicator {
             border-color: #00bcd4;
             background: #00bcd4;
         }
-        
         .gender-option.male.selected .selection-indicator {
             border-color: #4fc3f7;
             background: #4fc3f7;
         }
-        
         .gender-option.female.selected .selection-indicator {
             border-color: #f06292;
             background: #f06292;
         }
-        
         .checkmark {
             color: white;
             font-size: 1.2rem;
             opacity: 0;
             transition: opacity 0.3s;
         }
-        
-        .gender-option.selected .checkmark {
-            opacity: 1;
-        }
-        
-        /* Next Button */
-        .footer {
-            padding: 20px 0 30px;
-        }
-        
+        .gender-option.selected .checkmark { opacity: 1; }
+        .footer { padding: 20px 0 30px; }
         .next-btn {
             width: 100%;
             padding: 18px;
@@ -192,47 +145,25 @@
             font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
-        }        
+            transition: all 0.3s ease;            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+        }
         .next-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
         }
-        
-        .next-btn:active {
-            transform: translateY(0);
-        }
-        
+        .next-btn:active { transform: translateY(0); }
         .next-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             box-shadow: none;
         }
-        
-        /* Animation */
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .gender-option {
-            animation: slideIn 0.6s ease-out backwards;
-        }
-        
-        .gender-option:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-        
-        .gender-option:nth-child(2) {
-            animation-delay: 0.2s;
-        }
+        .gender-option { animation: slideIn 0.6s ease-out backwards; }
+        .gender-option:nth-child(1) { animation-delay: 0.1s; }
+        .gender-option:nth-child(2) { animation-delay: 0.2s; }
     </style>
 </head>
 <body>
@@ -244,6 +175,7 @@
             <div class="section-title">I am</div>
         </div>
     </div>
+
     <div class="content">
         <div class="gender-option male" onclick="selectGender('male')">
             <img src="assets/male.png" alt="Male" class="gender-image" onerror="this.src='https://via.placeholder.com/100?text=Male'">
@@ -252,7 +184,6 @@
                 <span class="checkmark">✓</span>
             </div>
         </div>
-
         <div class="gender-option female" onclick="selectGender('female')">
             <img src="assets/female.png" alt="Female" class="gender-image" onerror="this.src='https://via.placeholder.com/100?text=Female'">
             <div class="gender-label">Female</div>
@@ -263,54 +194,88 @@
     </div>
 
     <div class="footer">
-        <button class="next-btn" id="nextBtn" onclick="goNext()" disabled>NEXT</button>
-    </div>
+        <button class="next-btn" id="nextBtn" onclick="goNext()" disabled>NEXT</button>    </div>
 
     <script>
         let selectedGender = null;
+        let isAuthReady = false;
 
-        // Check if user is logged in
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-            }
+        // Wait for Firebase to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure config.js loaded
+            setTimeout(initPage, 500);
         });
 
+        function initPage() {
+            console.log("Initializing gender.html...");
+            
+            // Check if Firebase is initialized
+            if (typeof firebase === 'undefined' || !firebase.apps.length) {
+                console.error("Firebase not initialized! Check config.js");
+                alert("App initialization error. Please refresh.");
+                return;
+            }
+
+            // Auth state listener
+            auth.onAuthStateChanged((user) => {
+                console.log("Auth state changed:", user ? "Logged in" : "Not logged in");
+                isAuthReady = true;
+                
+                if (!user) {
+                    console.log("Redirecting to login...");
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Fallback: if auth doesn't fire in 3 seconds, assume not logged in
+            setTimeout(() => {
+                if (!isAuthReady) {
+                    console.log("Auth timeout - redirecting to login");
+                    window.location.href = 'login.html';
+                }
+            }, 3000);
+        }
+
         function selectGender(gender) {
+            console.log("Selected gender:", gender);
             selectedGender = gender;
             
-            // Remove selected class from all options
             document.querySelectorAll('.gender-option').forEach(option => {
                 option.classList.remove('selected');
             });
-            
-            // Add selected class to clicked option
-            document.querySelector(`.gender-option.${gender}`).classList.add('selected');
-            
-            // Enable next button
+                        document.querySelector(`.gender-option.${gender}`).classList.add('selected');
             document.getElementById('nextBtn').disabled = false;
         }
 
         function goNext() {
-            if (!selectedGender) {                alert('Please select your gender');
+            console.log("NEXT button clicked");
+            
+            if (!selectedGender) {
+                alert('Please select your gender');
                 return;
             }
             
-            // Save to localStorage
+            // Save to localStorage first (fast & reliable)
             localStorage.setItem('selectedGender', selectedGender);
+            console.log("Saved to localStorage:", selectedGender);
             
-            // Also save to Firebase
+            // Try to save to Firebase (non-blocking)
             const user = auth.currentUser;
             if (user) {
                 db.collection('users').doc(user.uid).update({
                     gender: selectedGender,
-                    genderSelected: true
+                    genderSelected: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    console.log("Gender saved to Firebase");
                 }).catch((error) => {
-                    console.error("Error saving gender:", error);
+                    console.warn("Firebase save failed (continuing anyway):", error);
+                    // Continue anyway - localStorage has the data
                 });
             }
             
-            // Go to next page (country.html or userinfo.html)
+            // Redirect to next page
+            console.log("Redirecting to country.html");
             window.location.href = 'country.html';
         }
 
@@ -318,7 +283,7 @@
             window.history.back();
         }
 
-        // Allow keyboard navigation
+        // Keyboard support
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                 e.preventDefault();
@@ -327,9 +292,13 @@
                 } else {
                     selectGender('male');
                 }
-            } else if (e.key === 'Enter' && selectedGender) {
-                goNext();
+            } else if (e.key === 'Enter' && selectedGender) {                goNext();
             }
+        });
+
+        // Debug: Log button state
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            console.log("Button state - disabled:", this.disabled, "selectedGender:", selectedGender);
         });
     </script>
 </body>
