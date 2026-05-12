@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="config.js"></script>
+    <style>
+        /* Keep your existing CSS styles here */
+        body { font-family: sans-serif; padding: 20px; background: #fff; }
+        .header { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .subheader { color: #888; margin-bottom: 20px; }
+        
+        .profile-pic {
+            width: 100px; height: 100px; background: #eee; border-radius: 50%;
+            margin: 0 auto 20px; display: block;
+        }
+        
+        label { display: block; margin-top: 15px; color: #555; }
+        input, select {
+            width: 100%; padding: 15px; margin-top: 5px;
+            border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box;
+            font-size: 16px;
+        }
+        
+        .submit-btn {
+            width: 100%; background: #00bcd4; color: white; padding: 15px;
+            border: none; border-radius: 30px; font-size: 18px; font-weight: bold;
+            margin-top: 30px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">Profile Setup</div>
+    <div class="subheader">Fill in your information</div>
+
+    <img src="https://via.placeholder.com/100" class="profile-pic" id="previewImg">
+    
+    <label>Full Name</label>
+    <input type="text" id="nameInput" placeholder="Enter your full name">
+
+    <label>Country</label>
+    <select id="countryInput">
+        <option value="BD">🇩 Bangladesh</option>
+        <option value="IN">🇳 India</option>        <option value="NG">🇳🇬 Nigeria</option>
+        <option value="PK">🇵🇰 Pakistan</option>
+    </select>
+
+    <label>Mobile Number</label>
+    <input type="tel" id="mobileInput" placeholder="01XXXXXXXXX">
+
+    <label>Date of Birth</label>
+    <input type="date" id="dobInput">
+
+    <button class="submit-btn" onclick="saveProfile()">SUBMIT</button>
+
+    <script>
+        // Load gender from previous step
+        const gender = localStorage.getItem('selectedGender');
+
+        function saveProfile() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Please login first");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const name = document.getElementById('nameInput').value;
+            const country = document.getElementById('countryInput').value;
+            const mobile = document.getElementById('mobileInput').value;
+            const dob = document.getElementById('dobInput').value;
+
+            if(!name || !dob) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            // Save to Firestore
+            db.collection('users').doc(user.uid).update({
+                name: name,
+                country: country,
+                mobile: mobile,
+                dob: dob,
+                gender: gender,
+                profileComplete: true // Flag to skip setup next time
+            }).then(() => {
+                alert("Profile Saved!");
+                window.location.href = 'home.html';
+            }).catch((error) => {
+                console.error("Error writing document: ", error);
+                alert("Error saving profile");
+            });
+        }    </script>
+</body>
+</html>

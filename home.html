@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Rico Live</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    <script src="config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 70px;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 10px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff4081 0%, #ff80ab 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .search-container {            flex: 1;
+            position: relative;
+        }
+        
+        .search-bar {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            background: #f5f5f5;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        
+        .search-bar:focus {
+            border-color: #ff4081;
+            background: white;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .add-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .tab {            padding: 10px 15px;
+            color: #999;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #333;
+            border-bottom-color: #ff4081;
+        }
+        
+        /* Slide Images */
+        .slider-container {
+            margin: 15px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: 180px;
+        }
+        
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 100%;
+        }
+        
+        .slide {
+            min-width: 100%;
+            height: 100%;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slider-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 8px;            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+        
+        .dot.active {
+            background: white;
+        }
+        
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 15px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .card-info {
+            padding: 10px;
+        }
+        
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            color: #999;
+        }
+                .live-badge {
+            background: #ff4081;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-item.active {
+            color: #ff4081;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 3px;
+        }
+        
+        .nav-label {
+            font-size: 0.75rem;
+        }
+        
+        /* Create Room Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-height: 90vh;
+            border-radius: 25px 25px 0 0;
+            padding: 25px;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #667eea;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f5f5f5;
+        }
+        
+        .upload-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 15px;            background: #f5f5f5;
+            color: #333;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <div class="logo">Rico Live</div>
+            <div class="search-container">
+                <input type="text" class="search-bar" id="searchBar" placeholder="Search user ID...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <button class="add-btn" onclick="openCreateRoom()">+</button>
+        </div>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('popular')">Popular</div>
+            <div class="tab" onclick="switchTab('follow')">Follow</div>
+            <div class="tab" onclick="switchTab('recent')">Recent</div>
+        </div>
+    </div>
+
+    <!-- Image Slider -->
+    <div class="slider-container">
+        <div class="slider" id="slider">
+            <div class="slide"><img src="assets/slide_1.png" alt="Slide 1" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+1'"></div>
+            <div class="slide"><img src="assets/slide_2.png" alt="Slide 2" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+2'"></div>
+            <div class="slide"><img src="assets/slide_3.png" alt="Slide 3" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+3'"></div>
+            <div class="slide"><img src="assets/slide_4.png" alt="Slide 4" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+4'"></div>
+            <div class="slide"><img src="assets/slide_5.png" alt="Slide 5" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+5'"></div>
+        </div>
+        <div class="slider-dots">            <div class="dot active" onclick="goToSlide(0)"></div>
+            <div class="dot" onclick="goToSlide(1)"></div>
+            <div class="dot" onclick="goToSlide(2)"></div>
+            <div class="dot" onclick="goToSlide(3)"></div>
+            <div class="dot" onclick="goToSlide(4)"></div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid" id="contentGrid">
+        <!-- Cards will be loaded from Firebase -->
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="navigateTo('home.html')">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Room</div>
+        </div>
+        <div class="nav-item" onclick="navigateTo('moments.html')">
+            <div class="nav-icon">✨</div>
+            <div class="nav-label">Moments</div>
+        </div>
+        <div class="nav-item" onclick="navigateTo('message.html')">
+            <div class="nav-icon">💬</div>
+            <div class="nav-label">Message</div>
+        </div>
+        <div class="nav-item" onclick="navigateTo('me.html')">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">Me</div>
+        </div>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div class="modal" id="createRoomModal">
+        <div class="modal-content" style="position: relative;">
+            <button class="close-modal" onclick="closeCreateRoom()">×</button>
+            <div class="modal-header">
+                <div class="modal-title">Create Live Room</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Room Cover Photo</label>
+                <div class="upload-area" onclick="document.getElementById('roomPhoto').click()">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">📷</div>
+                    <div>Click to upload photo</div>
+                    <input type="file" id="roomPhoto" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                    <img id="previewImage" class="upload-preview">
+                </div>
+            </div>            
+            <div class="form-group">
+                <label class="form-label">Room Name</label>
+                <input type="text" class="form-input" id="roomName" placeholder="Enter room name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Announcement</label>
+                <textarea class="form-input" id="roomAnnouncement" rows="3" placeholder="Please set room announcement"></textarea>
+            </div>
+            
+            <button class="btn-primary" onclick="createRoom()">Start live broadcast</button>
+            <button class="btn-secondary" onclick="closeCreateRoom()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'popular';
+        let selectedImage = null;
+        let currentSlide = 0;
+
+        // Check authentication
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                loadUserData(user);
+                loadRooms();
+            }
+        });
+
+        // Auto slide
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % 5;
+            goToSlide(currentSlide);
+        }, 3000);
+
+        function goToSlide(index) {
+            currentSlide = index;
+            const slider = document.getElementById('slider');
+            slider.style.transform = `translateX(-${index * 100}%)`;
+            
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));            event.target.classList.add('active');
+            loadRooms();
+        }
+
+        function loadUserData(user) {
+            db.collection('users').doc(user.uid).get().then(doc => {
+                if (doc.exists) {
+                    window.currentUser = doc.data();
+                }
+            });
+        }
+
+        function loadRooms() {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Loading...</div>';
+            
+            let query = db.collection('rooms');
+            
+            if (currentTab === 'popular') {
+                query = query.orderBy('viewers', 'desc').limit(10);
+            } else if (currentTab === 'follow') {
+                // Load followed users' rooms
+                query = query.where('userId', 'in', []); // Implement follow logic
+            } else {
+                query = query.orderBy('createdAt', 'desc').limit(10);
+            }
+            
+            query.get().then(snapshot => {
+                grid.innerHTML = '';
+                if (snapshot.empty) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">No live rooms</div>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const room = doc.data();
+                    const card = createRoomCard(room);
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        function createRoomCard(room) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => joinRoom(room.id);
+            
+            card.innerHTML = `
+                <img src="${room.coverPhoto || 'https://via.placeholder.com/200x150'}" class="card-image" alt="${room.name}">
+                <div class="card-info">                    <div class="card-title">${room.name}</div>
+                    <div class="card-meta">
+                        <span class="live-badge">LIVE</span>
+                        <span>👁 ${room.viewers || 0}</span>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function openCreateRoom() {
+            document.getElementById('createRoomModal').classList.add('active');
+        }
+
+        function closeCreateRoom() {
+            document.getElementById('createRoomModal').classList.remove('active');
+            document.getElementById('previewImage').style.display = 'none';
+            document.getElementById('roomName').value = '';
+            document.getElementById('roomAnnouncement').value = '';
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                selectedImage = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('previewImage');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function createRoom() {
+            const user = auth.currentUser;
+            const roomName = document.getElementById('roomName').value;
+            const announcement = document.getElementById('roomAnnouncement').value;
+            
+            if (!roomName) {
+                alert('Please enter room name');
+                return;
+            }
+            
+            if (!selectedImage) {
+                alert('Please upload room cover photo');
+                return;
+            }
+                        // Upload image to Firebase Storage
+            const storageRef = storage.ref(`rooms/${user.uid}/${Date.now()}.jpg`);
+            await storageRef.put(selectedImage);
+            const coverPhoto = await storageRef.getDownloadURL();
+            
+            // Create room in Firestore
+            const roomData = {
+                name: roomName,
+                announcement: announcement,
+                coverPhoto: coverPhoto,
+                userId: user.uid,
+                userName: window.currentUser?.name || user.displayName,
+                userPhoto: window.currentUser?.photoURL || user.photoURL,
+                viewers: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'live'
+            };
+            
+            const roomRef = await db.collection('rooms').add(roomData);
+            
+            // Close modal and redirect to live room
+            closeCreateRoom();
+            window.location.href = `live.html?roomId=${roomRef.id}`;
+        }
+
+        function joinRoom(roomId) {
+            window.location.href = `live.html?roomId=${roomId}`;
+        }
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        // Search functionality
+        document.getElementById('searchBar').addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            if (query.length > 0) {
+                searchUsers(query);
+            } else {
+                loadRooms();
+            }
+        });
+
+        function searchUsers(query) {
+            db.collection('users')
+                .where('name', '>=', query)
+                .where('name', '<=', query + '\uf8ff')
+                .limit(10)
+                .get()
+                .then(snapshot => {                    // Show search results (you can implement a dropdown)
+                    console.log('Search results:', snapshot.docs);
+                });
+        }
+
+        // Close modal on outside click
+        document.getElementById('createRoomModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateRoom();
+            }
+        });
+    </script>
+</body>
+</html>
