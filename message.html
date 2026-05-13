@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Rico Live</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="config.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex;            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Search Bar */
+        .search-container {
+            padding: 15px 20px;
+            background: white;
+            margin-bottom: 10px;
+        }
+        
+        .search-wrapper {
+            position: relative;
+        }
+        
+        .search-bar {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            background: #f5f5f5;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-bar:focus {
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        /* Tabs */
+        .tabs-container {
+            background: white;
+            padding: 0 20px;
+            margin-bottom: 10px;            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .tab {
+            padding: 15px 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: #999;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #667eea;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        /* Message List */
+        .message-list {
+            background: white;
+        }
+        
+        .message-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+        
+        .message-item:hover {
+            background: #f8f9fa;
+        }        
+        .message-item.unread {
+            background: #f0f4ff;
+        }
+        
+        .avatar-container {
+            position: relative;
+            margin-right: 15px;
+        }
+        
+        .message-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .online-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: #4caf50;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .message-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #999;        }
+        
+        .message-text {
+            color: #666;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .unread-badge {
+            background: #ff4081;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 10px;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        /* System Message */
+        .system-message {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        
+        .system-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;        }
+        
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .empty-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        
+        .empty-subtext {
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 5px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #999;
+            transition: color 0.3s;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+        
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">💬 Messages</div>
+        <div class="header-actions">
+            <div class="action-btn" onclick="alert('New Message')">✏️</div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+        <div class="search-wrapper">
+            <input type="text" class="search-bar" placeholder="Search conversations..." id="searchInput">
+            <span class="search-icon">🔍</span>
+        </div>
+    </div>
+
+    <!-- Tabs -->    <div class="tabs-container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('all')">All</div>
+            <div class="tab" onclick="switchTab('unread')">Unread</div>
+            <div class="tab" onclick="switchTab('system')">System</div>
+        </div>
+    </div>
+
+    <!-- Message List -->
+    <div class="message-list" id="messageList">
+        <div class="loading">
+            <div class="spinner"></div>
+            <div>Loading messages...</div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Room</span>
+        </a>
+        <a href="moments.html" class="nav-item">
+            <span class="nav-icon">✨</span>
+            <span class="nav-label">Moments</span>
+        </a>
+        <a href="message.html" class="nav-item active">
+            <span class="nav-icon">💬</span>
+            <span class="nav-label">Message</span>
+        </a>
+        <a href="me.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Me</span>
+        </a>
+    </nav>
+
+    <script>
+        let currentTab = 'all';
+        let currentUser = null;
+        let allConversations = [];
+
+        // Auth Check
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                currentUser = user;
+                loadAllMessages();
+            }
+        });
+        // Load all messages from Firestore
+        async function loadAllMessages() {
+            try {
+                const messageList = document.getElementById('messageList');
+                
+                // Query conversations where current user is a participant
+                const conversationsRef = db.collection('conversations')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .orderBy('lastMessageTime', 'desc');
+                
+                const snapshot = await conversationsRef.get();
+                
+                if (snapshot.empty) {
+                    showEmptyState();
+                    return;
+                }
+                
+                allConversations = [];
+                messageList.innerHTML = '';
+                
+                // Add System Message at top
+                const systemMsg = createSystemMessage();
+                messageList.appendChild(systemMsg);
+                
+                // Load each conversation
+                for (const doc of snapshot.docs) {
+                    const conversation = doc.data();
+                    conversation.id = doc.id;
+                    
+                    // Get other user info
+                    const otherUserId = conversation.participants.find(id => id !== currentUser.uid);
+                    const userDoc = await db.collection('users').doc(otherUserId).get();
+                    const userData = userDoc.exists ? userDoc.data() : {};
+                    
+                    conversation.otherUser = userData;
+                    allConversations.push(conversation);
+                    
+                    const messageItem = createMessageItem(userData, conversation);
+                    messageList.appendChild(messageItem);
+                }
+                
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                document.getElementById('messageList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <div class="empty-text">Error loading messages</div>
+                        <div class="empty-subtext">Please try again later</div>
+                    </div>                `;
+            }
+        }
+
+        // Create system message item
+        function createSystemMessage() {
+            const div = document.createElement('div');
+            div.className = 'system-message';
+            div.onclick = () => alert('System Notifications');
+            
+            div.innerHTML = `
+                <div class="system-icon">🔔</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 3px;">System Notifications</div>
+                    <div style="color: #666; font-size: 0.9rem;">Updates, gifts, and announcements</div>
+                </div>
+                <span style="color: #ccc;">›</span>
+            `;
+            
+            return div;
+        }
+
+        // Create message item
+        function createMessageItem(userData, conversation) {
+            const div = document.createElement('div');
+            const isUnread = conversation.unreadCount > 0;
+            div.className = `message-item ${isUnread ? 'unread' : ''}`;
+            div.onclick = () => openChat(conversation.id);
+            
+            const lastMessage = conversation.lastMessage || 'Start a conversation';
+            const time = formatTime(conversation.lastMessageTime);
+            const unreadCount = conversation.unreadCount || 0;
+            
+            div.innerHTML = `
+                <div class="avatar-container">
+                    <img src="${userData.photoURL || 'https://via.placeholder.com/55'}" 
+                         class="message-avatar" alt="User">
+                    ${userData.isOnline ? '<div class="online-dot"></div>' : ''}
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <div class="message-name">${userData.name || 'User'}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="message-text">${lastMessage}</div>
+                        ${unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : ''}
+                    </div>
+                </div>
+            `;            
+            return div;
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('messageList').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <div class="empty-text">No messages yet</div>
+                    <div class="empty-subtext">Start chatting with others!</div>
+                </div>
+            `;
+        }
+
+        // Format time
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            
+            try {
+                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                const now = new Date();
+                const diff = now - date;
+                
+                if (diff < 60000) return 'Now';
+                if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+                if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+                if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+                
+                return date.toLocaleDateString();
+            } catch (e) {
+                return '';
+            }
+        }
+
+        // Switch tab
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update UI
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter messages
+            filterMessages(tab);
+        }
+
+        // Filter messages based on tab
+        function filterMessages(tab) {
+            const messageList = document.getElementById('messageList');            messageList.innerHTML = '';
+            
+            // Always add system message
+            messageList.appendChild(createSystemMessage());
+            
+            // Filter conversations
+            let filtered = allConversations;
+            
+            if (tab === 'unread') {
+                filtered = allConversations.filter(c => c.unreadCount > 0);
+            } else if (tab === 'system') {
+                filtered = [];
+            }
+            
+            if (filtered.length === 0 && tab !== 'system') {
+                messageList.innerHTML += `
+                    <div class="empty-state" style="padding: 40px;">
+                        <div class="empty-text">No ${tab} messages</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display filtered messages
+            filtered.forEach(conversation => {
+                const messageItem = createMessageItem(conversation.otherUser, conversation);
+                messageList.appendChild(messageItem);
+            });
+        }
+
+        // Open chat
+        function openChat(conversationId) {
+            // Mark as read
+            markAsRead(conversationId);
+            window.location.href = `chat.html?cid=${conversationId}`;
+        }
+
+        // Mark conversation as read
+        async function markAsRead(conversationId) {
+            try {
+                await db.collection('conversations').doc(conversationId).update({
+                    unreadCount: 0
+                });
+            } catch (error) {
+                console.error('Error marking as read:', error);
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {            const query = e.target.value.toLowerCase().trim();
+            
+            if (!query) {
+                filterMessages(currentTab);
+                return;
+            }
+            
+            const messageList = document.getElementById('messageList');
+            messageList.innerHTML = '';
+            messageList.appendChild(createSystemMessage());
+            
+            const filtered = allConversations.filter(conv => {
+                const userName = (conv.otherUser.name || '').toLowerCase();
+                const lastMsg = (conv.lastMessage || '').toLowerCase();
+                return userName.includes(query) || lastMsg.includes(query);
+            });
+            
+            if (filtered.length === 0) {
+                messageList.innerHTML += `
+                    <div class="empty-state" style="padding: 40px;">
+                        <div class="empty-text">No results found</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            filtered.forEach(conversation => {
+                const messageItem = createMessageItem(conversation.otherUser, conversation);
+                messageList.appendChild(messageItem);
+            });
+        });
+
+        // Real-time listener for new messages
+        function setupRealtimeListener() {
+            if (!currentUser) return;
+            
+            db.collection('conversations')
+                .where('participants', 'array-contains', currentUser.uid)
+                .orderBy('lastMessageTime', 'desc')
+                .onSnapshot((snapshot) => {
+                    // Reload messages when there's a change
+                    loadAllMessages();
+                });
+        }
+
+        // Setup real-time listener after auth
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                setupRealtimeListener();
+            }        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 // config.js
 
-// --- FIREBASE CONFIG ---
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyC1OBVxQYM7F87KNA1VrJPAnY-YZj8OA-s",
     authDomain: "kaira-voice-8719d.firebaseapp.com",
@@ -11,14 +11,17 @@ const firebaseConfig = {
     measurementId: "G-0H8KH54TQL"
 };
 
-// --- ZEGOCLOUD CONFIG ---
-const zegoConfig = {
-    appID: 123456789, // Replace with your Zego AppID
-    serverSecret: "YOUR_ZEGO_SERVER_SECRET" // Replace with your Zego Secret
+// Cloudinary Config (✅ Safe - No API Secret)
+const cloudinaryConfig = {
+    cloudName: 'donl3yypc',              // ✅ Your Cloud Name
+    uploadPreset: 'rico_live_preset'     // ✅ Create this in Cloudinary Dashboard
+    // ❌ NEVER put api_key or api_secret here!
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();

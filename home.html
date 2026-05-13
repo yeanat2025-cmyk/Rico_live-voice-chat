@@ -3,649 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Rico Live</title>
+    <title>Rico Live - Home</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
     <script src="config.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #f5f7fa; padding-bottom: 70px; min-height: 100vh; }
         
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #f5f5f5;
-            padding-bottom: 70px;
-        }
-        
-        /* Header */
+        /* Header - 90px height */
         .header {
-            background: white;
-            padding: 10px 15px;
+            background: #62c2f5;
+            height: 90px;
+            padding: 0 15px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .header-top {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
         }
         
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #ff4081 0%, #ff80ab 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .header-top { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 10px; }
         
-        .search-container {            flex: 1;
-            position: relative;
-        }
+        .search-container { flex: 1; position: relative; }
         
         .search-bar {
             width: 100%;
-            padding: 10px 40px 10px 15px;
+            padding: 10px 35px 10px 13px;
             border: 1px solid #e0e0e0;
             border-radius: 25px;
             background: #f5f5f5;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             outline: none;
+            transition: all 0.3s;
         }
+        .search-bar:focus { border-color: #667eea; background: white; }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #999; }
         
-        .search-bar:focus {
-            border-color: #ff4081;
-            background: white;
-        }
-        
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-        
-        .add-btn {
-            width: 40px;
-            height: 40px;
+        .add-room-btn {
+            width: 45px; height: 45px; border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-        }
+            color: white; border: none; font-size: 1.8rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3); flex-shrink: 0;        }
+        .add-room-btn:active { transform: scale(0.95); }
+        
+        /* Main Content */
+        .main-content { display: block; opacity: 1; }
         
         /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 20px;
-            border-bottom: 1px solid #e0e0e0;
+        .tabs { 
+            display: flex; 
+            gap: 10px; /* Reduced gap */
+            padding: 15px; 
+            background: white; 
+            border-bottom: 1px solid #e0e0e0; 
+            margin-bottom: 15px; 
+            overflow-x: auto; 
+            /* Hide scrollbar but allow scroll */
+            scrollbar-width: none;
         }
+        .tabs::-webkit-scrollbar { display: none; }
         
-        .tab {            padding: 10px 15px;
-            color: #999;
-            font-weight: 500;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .tab.active {
-            color: #333;
-            border-bottom-color: #ff4081;
-        }
-        
-        /* Slide Images */
-        .slider-container {
-            margin: 15px;
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            height: 180px;
-        }
-        
-        .slider {
-            display: flex;
-            transition: transform 0.5s ease;
-            height: 100%;
-        }
-        
-        .slide {
-            min-width: 100%;
-            height: 100%;
-        }
-        
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .slider-dots {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-        }
-        
-        .dot {
-            width: 8px;            height: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.5);
-            cursor: pointer;
-        }
-        
-        .dot.active {
-            background: white;
-        }
-        
-        /* Content Grid */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 15px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .card-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-        
-        .card-info {
-            padding: 10px;
-        }
-        
-        .card-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .card-meta {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.75rem;
-            color: #999;
-        }
-                .live-badge {
-            background: #ff4081;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-        
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 1000;
-        }
-        
-        .nav-item {
-            flex: 1;
-            text-align: center;
-            color: #999;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .nav-item.active {
-            color: #ff4081;
-        }
-        
-        .nav-icon {
-            font-size: 1.5rem;
-            margin-bottom: 3px;
-        }
-        
-        .nav-label {
-            font-size: 0.75rem;
-        }
-        
-        /* Create Room Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: flex-end;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            width: 100%;
-            max-height: 90vh;
-            border-radius: 25px 25px 0 0;
-            padding: 25px;
-            animation: slideUp 0.3s ease;
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-        
-        .modal-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        
-        .modal-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-        
-        .form-input {
-            width: 100%;            padding: 12px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            outline: none;
-        }
-        
-        .form-input:focus {
-            border-color: #667eea;
-        }
-        
-        .upload-area {
-            border: 2px dashed #ccc;
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .upload-area:hover {
-            border-color: #667eea;
+        .tab { 
+            padding: 8px 16px; /* Slightly smaller padding */
+            color: #999; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border-radius: 20px; 
+            white-space: nowrap; /* Prevent tab text wrapping */
             background: #f5f5f5;
+            font-size: 0.9rem; /* Slightly smaller font */
+        }
+        .tab.active { 
+            color: #667eea; 
+            background: #e8eeff; 
+            font-weight: 700;
         }
         
-        .upload-preview {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-top: 10px;
-            display: none;
+        /* Slider */
+        .slider-container { margin-bottom: 20px; padding: 0 15px; }
+        .slider { position: relative; width: 100%; height: 100px; /* Slightly smaller */ border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .slider-images { display: flex; transition: transform 0.5s ease; height: 100%; }
+        .slide { min-width: 100%; height: 100%; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
+        .slider-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s; }
+        .dot.active { background: white; width: 24px; border-radius: 4px; }
+        
+        /* Rooms Grid */
+        .section-title { padding: 15px 15px 10px; font-size: 1.1rem; font-weight: bold; color: #333; }
+        .rooms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px; }
+                .room-card { 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
+            cursor: pointer; 
+            display: flex;
+            flex-direction: column;
         }
         
-        .btn-primary {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
+        .room-image { 
+            width: 100%; 
+            height: 140px; /* Adjusted height */
+            position: relative; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        }
+        .room-image img { width: 100%; height: 100%; object-fit: cover; }
+        .live-badge { position: absolute; top: 10px; left: 10px; background: #ff4081; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+        .viewers { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.75rem; }
+        
+        .room-info { 
+            padding: 10px; 
+            flex: 1; /* Ensures info takes remaining space */
         }
         
-        .btn-secondary {
-            width: 100%;
-            padding: 15px;            background: #f5f5f5;
-            color: #333;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 10px;
+        .room-name { 
+            font-weight: 600; 
+            color: #333; 
+            margin-bottom: 6px; 
+            font-size: 0.95rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Show max 2 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 2.6em; /* Reserve space for 2 lines */
         }
         
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #999;
+        .room-owner { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-size: 0.8rem; 
+            color: #666; 
+            white-space: nowrap; /* Prevent owner name wrapping */
+            overflow: hidden;
         }
+        .owner-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .owner-name-text {            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 15px; text-decoration: none; color: #999; }
+        .nav-item.active { color: #667eea; }
+        .nav-icon { font-size: 1.5rem; }
+        .nav-label { font-size: 0.7rem; font-weight: 500; }
+        
+        /* Search Dropdown */
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-height: 300px; overflow-y: auto; display: none; z-index: 50; margin-top: 5px; }
+        .search-result-item { padding: 12px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .search-result-item:hover { background: #f5f5f5; }
+        .result-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .result-info { flex: 1; overflow: hidden; }
+        .result-name { font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .result-id { font-size: 0.8rem; color: #999; }
+        
+        .loading-indicator { text-align: center; padding: 20px; color: #999; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <div class="header">
         <div class="header-top">
-            <div class="logo">Rico Live</div>
             <div class="search-container">
-                <input type="text" class="search-bar" id="searchBar" placeholder="Search user ID...">
+                <input type="text" class="search-bar" id="searchBar" placeholder="Search by user ID...">
                 <span class="search-icon">🔍</span>
+                <div class="search-results" id="searchResults"></div>
             </div>
-            <button class="add-btn" onclick="openCreateRoom()">+</button>
+            <button class="add-room-btn" onclick="window.location.href='create-room.html'">+</button>
         </div>
+    </div>
+
+    <div class="main-content">
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('popular')">Popular</div>
-            <div class="tab" onclick="switchTab('follow')">Follow</div>
-            <div class="tab" onclick="switchTab('recent')">Recent</div>
+            <div class="tab active" onclick="switchTab('popular', this)">Popular</div>
+            <div class="tab" onclick="switchTab('follow', this)">Follow</div>
+            <div class="tab" onclick="switchTab('recent', this)">Recent</div>
+            <div class="tab" onclick="switchTab('new', this)">New</div>
         </div>
-    </div>
 
-    <!-- Image Slider -->
-    <div class="slider-container">
-        <div class="slider" id="slider">
-            <div class="slide"><img src="assets/slide_1.png" alt="Slide 1" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+1'"></div>
-            <div class="slide"><img src="assets/slide_2.png" alt="Slide 2" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+2'"></div>
-            <div class="slide"><img src="assets/slide_3.png" alt="Slide 3" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+3'"></div>
-            <div class="slide"><img src="assets/slide_4.png" alt="Slide 4" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+4'"></div>
-            <div class="slide"><img src="assets/slide_5.png" alt="Slide 5" onerror="this.src='https://via.placeholder.com/400x180?text=Slide+5'"></div>
-        </div>
-        <div class="slider-dots">            <div class="dot active" onclick="goToSlide(0)"></div>
-            <div class="dot" onclick="goToSlide(1)"></div>
-            <div class="dot" onclick="goToSlide(2)"></div>
-            <div class="dot" onclick="goToSlide(3)"></div>
-            <div class="dot" onclick="goToSlide(4)"></div>
-        </div>
-    </div>
-
-    <!-- Content Grid -->
-    <div class="content-grid" id="contentGrid">
-        <!-- Cards will be loaded from Firebase -->
-    </div>
-
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="navigateTo('home.html')">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Room</div>
-        </div>
-        <div class="nav-item" onclick="navigateTo('moments.html')">
-            <div class="nav-icon">✨</div>
-            <div class="nav-label">Moments</div>
-        </div>
-        <div class="nav-item" onclick="navigateTo('message.html')">
-            <div class="nav-icon">💬</div>
-            <div class="nav-label">Message</div>
-        </div>
-        <div class="nav-item" onclick="navigateTo('me.html')">
-            <div class="nav-icon">👤</div>
-            <div class="nav-label">Me</div>
-        </div>
-    </div>
-
-    <!-- Create Room Modal -->
-    <div class="modal" id="createRoomModal">
-        <div class="modal-content" style="position: relative;">
-            <button class="close-modal" onclick="closeCreateRoom()">×</button>
-            <div class="modal-header">
-                <div class="modal-title">Create Live Room</div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Room Cover Photo</label>
-                <div class="upload-area" onclick="document.getElementById('roomPhoto').click()">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">📷</div>
-                    <div>Click to upload photo</div>
-                    <input type="file" id="roomPhoto" accept="image/*" style="display: none;" onchange="previewImage(this)">
-                    <img id="previewImage" class="upload-preview">
+        <div class="slider-container">
+            <div class="slider">
+                <div class="slider-images" id="sliderImages">
+                    <div class="slide"><img src="assets/slide_1.png" onerror="this.src='https://via.placeholder.com/400x180/667eea/fff?text=1'"></div>
+                    <div class="slide"><img src="assets/slide_2.png" onerror="this.src='https://via.placeholder.com/400x180/764ba2/fff?text=2'"></div>                    <div class="slide"><img src="assets/slide_3.png" onerror="this.src='https://via.placeholder.com/400x180/f093fb/fff?text=3'"></div>
+                    <div class="slide"><img src="assets/slide_4.png" onerror="this.src='https://via.placeholder.com/400x180/4facfe/fff?text=4'"></div>
+                    <div class="slide"><img src="assets/slide_5.png" onerror="this.src='https://via.placeholder.com/400x180/43e97b/fff?text=5'"></div>
+                    <div class="slide"><img src="assets/slide_6.png" onerror="this.src='https://via.placeholder.com/400x180/feca57/fff?text=6'"></div>
                 </div>
-            </div>            
-            <div class="form-group">
-                <label class="form-label">Room Name</label>
-                <input type="text" class="form-input" id="roomName" placeholder="Enter room name">
+                <div class="slider-dots" id="sliderDots"></div>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">Announcement</label>
-                <textarea class="form-input" id="roomAnnouncement" rows="3" placeholder="Please set room announcement"></textarea>
-            </div>
-            
-            <button class="btn-primary" onclick="createRoom()">Start live broadcast</button>
-            <button class="btn-secondary" onclick="closeCreateRoom()">Cancel</button>
+        </div>
+
+        <div class="section-title">🔥 Live Rooms</div>
+        <div class="rooms-grid" id="roomsGrid">
+            <div class="loading-indicator">Loading rooms...</div>
         </div>
     </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item active"><span class="nav-icon">🏠</span><span class="nav-label">Room</span></a>
+        <a href="moments.html" class="nav-item"><span class="nav-icon">✨</span><span class="nav-label">Moments</span></a>
+        <a href="message.html" class="nav-item"><span class="nav-icon">💬</span><span class="nav-label">Message</span></a>
+        <a href="me.html" class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Me</span></a>
+    </nav>
 
     <script>
-        let currentTab = 'popular';
-        let selectedImage = null;
         let currentSlide = 0;
+        let allUsers = [];
 
-        // Check authentication
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
             } else {
-                loadUserData(user);
                 loadRooms();
+                loadUsers();
+                initSlider();
             }
         });
-
-        // Auto slide
-        setInterval(() => {
-            currentSlide = (currentSlide + 1) % 5;
-            goToSlide(currentSlide);
-        }, 3000);
-
-        function goToSlide(index) {
-            currentSlide = index;
-            const slider = document.getElementById('slider');
-            slider.style.transform = `translateX(-${index * 100}%)`;
-            
-            document.querySelectorAll('.dot').forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));            event.target.classList.add('active');
-            loadRooms();
-        }
-
-        function loadUserData(user) {
-            db.collection('users').doc(user.uid).get().then(doc => {
-                if (doc.exists) {
-                    window.currentUser = doc.data();
-                }
-            });
-        }
 
         function loadRooms() {
-            const grid = document.getElementById('contentGrid');
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">Loading...</div>';
+            const grid = document.getElementById('roomsGrid');
             
-            let query = db.collection('rooms');
-            
-            if (currentTab === 'popular') {
-                query = query.orderBy('viewers', 'desc').limit(10);
-            } else if (currentTab === 'follow') {
-                // Load followed users' rooms
-                query = query.where('userId', 'in', []); // Implement follow logic
-            } else {
-                query = query.orderBy('createdAt', 'desc').limit(10);
-            }
-            
-            query.get().then(snapshot => {
+            db.collection('rooms').where('isLive', '==', true).orderBy('createdAt', 'desc').limit(10)
+            .onSnapshot((snapshot) => {
                 grid.innerHTML = '';
-                if (snapshot.empty) {
-                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">No live rooms</div>';
-                    return;
-                }
                 
+                if (snapshot.empty) {
+                    grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:#999;">
+                        <div style="font-size:3rem; margin-bottom:10px;">🎥</div>
+                        <div>No live rooms right now</div>
+                        <div style="font-size:0.9rem; margin-top:5px;">Be the first to go live!</div>
+                    </div>`;
+                    return;                }
+
                 snapshot.forEach(doc => {
                     const room = doc.data();
-                    const card = createRoomCard(room);
-                    grid.appendChild(card);
+                    const div = document.createElement('div');
+                    div.className = 'room-card';
+                    div.onclick = () => window.location.href = `live-room.html?roomId=${doc.id}`;
+                    div.innerHTML = `
+                        <div class="room-image">
+                            ${room.coverUrl ? `<img src="${room.coverUrl}">` : ''}
+                            <span class="live-badge">LIVE</span>
+                            <div class="viewers">👁 ${room.viewers || 0}</div>
+                        </div>
+                        <div class="room-info">
+                            <div class="room-name">${room.name || 'Live Room'}</div>
+                            <div class="room-owner">
+                                <img src="${room.ownerPhoto || 'https://via.placeholder.com/20'}" class="owner-avatar">
+                                <span class="owner-name-text">${room.ownerName || 'User'}</span>
+                            </div>
+                        </div>`;
+                    grid.appendChild(div);
                 });
+            })
+            .catch(error => {
+                console.error("Error loading rooms:", error);
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#f44336;">Error loading rooms</div>';
             });
         }
 
-        function createRoomCard(room) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.onclick = () => joinRoom(room.id);
-            
-            card.innerHTML = `
-                <img src="${room.coverPhoto || 'https://via.placeholder.com/200x150'}" class="card-image" alt="${room.name}">
-                <div class="card-info">                    <div class="card-title">${room.name}</div>
-                    <div class="card-meta">
-                        <span class="live-badge">LIVE</span>
-                        <span>👁 ${room.viewers || 0}</span>
-                    </div>
-                </div>
-            `;
-            
-            return card;
+        function loadUsers() {
+            db.collection('users').get().then(snap => {
+                allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            }).catch(err => console.error("Error loading users:", err));
         }
 
-        function openCreateRoom() {
-            document.getElementById('createRoomModal').classList.add('active');
-        }
-
-        function closeCreateRoom() {
-            document.getElementById('createRoomModal').classList.remove('active');
-            document.getElementById('previewImage').style.display = 'none';
-            document.getElementById('roomName').value = '';
-            document.getElementById('roomAnnouncement').value = '';
-        }
-
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                selectedImage = input.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('previewImage');
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        async function createRoom() {
-            const user = auth.currentUser;
-            const roomName = document.getElementById('roomName').value;
-            const announcement = document.getElementById('roomAnnouncement').value;
+        const searchBar = document.getElementById('searchBar');
+        const searchResults = document.getElementById('searchResults');
+        
+        searchBar.addEventListener('input', (e) => {
+            const q = e.target.value.trim().toLowerCase();
+            if (!q) { searchResults.style.display = 'none'; return; }
             
-            if (!roomName) {
-                alert('Please enter room name');
-                return;
-            }
+            const filtered = allUsers.filter(u => 
+                (u.uid && u.uid.toLowerCase().includes(q)) || 
+                (u.name && u.name.toLowerCase().includes(q))
+            ).slice(0, 5);
             
-            if (!selectedImage) {
-                alert('Please upload room cover photo');
-                return;
-            }
-                        // Upload image to Firebase Storage
-            const storageRef = storage.ref(`rooms/${user.uid}/${Date.now()}.jpg`);
-            await storageRef.put(selectedImage);
-            const coverPhoto = await storageRef.getDownloadURL();
-            
-            // Create room in Firestore
-            const roomData = {
-                name: roomName,
-                announcement: announcement,
-                coverPhoto: coverPhoto,
-                userId: user.uid,
-                userName: window.currentUser?.name || user.displayName,
-                userPhoto: window.currentUser?.photoURL || user.photoURL,
-                viewers: 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'live'
-            };
-            
-            const roomRef = await db.collection('rooms').add(roomData);
-            
-            // Close modal and redirect to live room
-            closeCreateRoom();
-            window.location.href = `live.html?roomId=${roomRef.id}`;
-        }
-
-        function joinRoom(roomId) {
-            window.location.href = `live.html?roomId=${roomId}`;
-        }
-
-        function navigateTo(page) {
-            window.location.href = page;
-        }
-
-        // Search functionality
-        document.getElementById('searchBar').addEventListener('input', function(e) {
-            const query = e.target.value.trim();
-            if (query.length > 0) {
-                searchUsers(query);
-            } else {
-                loadRooms();
-            }
-        });
-
-        function searchUsers(query) {
-            db.collection('users')
-                .where('name', '>=', query)
-                .where('name', '<=', query + '\uf8ff')
-                .limit(10)
-                .get()
-                .then(snapshot => {                    // Show search results (you can implement a dropdown)
-                    console.log('Search results:', snapshot.docs);
+            searchResults.innerHTML = '';
+            if (filtered.length === 0) {
+                searchResults.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">No users found</div>';            } else {
+                filtered.forEach(u => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.innerHTML = `<img src="${u.photoURL || 'https://via.placeholder.com/40'}" class="result-avatar">
+                        <div class="result-info"><div class="result-name">${u.name || 'User'}</div>
+                        <div class="result-id">ID: ${u.uid ? u.uid.substring(0,8) : 'N/A'}</div></div>`;
+                    item.onclick = () => window.location.href = `profile.html?uid=${u.uid}`;
+                    searchResults.appendChild(item);
                 });
+            }
+            searchResults.style.display = 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) searchResults.style.display = 'none';
+        });
+
+        function initSlider() {
+            const slides = document.querySelectorAll('.slide');
+            const dotsContainer = document.getElementById('sliderDots');
+            slides.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            });
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                updateSlider();
+            }, 3000);
         }
 
-        // Close modal on outside click
-        document.getElementById('createRoomModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeCreateRoom();
-            }
-        });
+        function goToSlide(i) { currentSlide = i; updateSlider(); }
+        function updateSlider() {
+            document.getElementById('sliderImages').style.transform = `translateX(-${currentSlide * 100}%)`;
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+        }
+
+        function switchTab(tab, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
     </script>
 </body>
 </html>
