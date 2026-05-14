@@ -13,8 +13,8 @@ const firebaseConfig = {
 
 // Cloudinary Config (✅ Safe - No API Secret)
 const cloudinaryConfig = {
-    cloudName: 'dyq8l7dhd',              // ✅ Your Cloud Name
-    uploadPreset: 'Kairalive'     // ✅ Create this in Cloudinary Dashboard
+    cloudName: 'ddswvell9',              // ✅ Your Cloud Name
+    uploadPreset: 'kairalive'     // ✅ Create this in Cloudinary Dashboard
     // ❌ NEVER put api_key or api_secret here!
 };
 
