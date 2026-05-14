@@ -172,6 +172,7 @@
 <div class="toast-container" id="toastContainer"></div>
 <div class="loading-overlay" id="loadingOverlay">Loading...</div>
 
+
 <script>
 let uploadedPhotoURL = null;
 let selectedFile = null;
@@ -187,6 +188,10 @@ function showToast(msg){
     div.innerText = msg;
     document.getElementById("toastContainer").appendChild(div);
     setTimeout(()=>div.remove(),3000);
+}
+
+function setLoading(show){
+    document.getElementById("loadingOverlay").classList.toggle("active", show);
 }
 
 function validateField(id){
@@ -208,47 +213,82 @@ function handlePhotoSelect(e){
 }
 
 async function uploadToCloudinary(file){
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", cloudinaryConfig.uploadPreset);
+    try{
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", cloudinaryConfig.uploadPreset);
 
-    const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
-        { method:"POST", body: formData }
-    );
+        const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
+            { method:"POST", body: formData }
+        );
 
-    const data = await res.json();
-    return data.secure_url;
+        const data = await res.json();
+
+        if(!data.secure_url){
+            throw new Error("Upload failed");
+        }
+
+        return data.secure_url;
+
+    }catch(err){
+        throw new Error("Image upload failed");
+    }
 }
 
 async function saveProfile(){
     try{
-        const user = auth.currentUser;
-        if(!user){ showToast("Login needed"); return; }
 
-        let photo = uploadedPhotoURL;
+        const user = auth?.currentUser;
+
+        if(!user){
+            showToast("Login needed");
+            return;
+        }
+
+        const name = document.getElementById("nameInput").value.trim();
+        const dob = document.getElementById("dobInput").value;
+
+        if(name.length < 2){
+            showToast("Valid name দাও");
+            return;
+        }
+
+        if(!dob){
+            showToast("DOB দাও");
+            return;
+        }
+
+        setLoading(true);
+
+        let photo = uploadedPhotoURL || "";
 
         if(selectedFile){
             photo = await uploadToCloudinary(selectedFile);
         }
 
         await db.collection("users").doc(user.uid).set({
-            uid:user.uid,
-            name: document.getElementById("nameInput").value,
-            dob: document.getElementById("dobInput").value,
-            gender:selectedGender,
-            country:selectedCountry,
-            countryCode:selectedCountryCode,
-            mobile:selectedMobile,
-            photoURL:photo,
-            profileComplete:true
-        },{merge:true});
+            uid: user.uid,
+            name,
+            dob,
+            gender: selectedGender,
+            country: selectedCountry,
+            countryCode: selectedCountryCode,
+            mobile: selectedMobile,
+            photoURL: photo,
+            profileComplete: true
+        }, { merge: true });
 
         showToast("Profile Saved ✅");
-        setTimeout(()=>window.location.href="home.html",1500);
+
+        setTimeout(()=>{
+            window.location.href = "home.html";
+        }, 1200);
 
     }catch(err){
         showToast(err.message);
+    }finally{
+        setLoading(false);
     }
 }
 
