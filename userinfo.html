@@ -174,124 +174,115 @@
 
 
 <script>
-let uploadedPhotoURL = null;
-let selectedFile = null;
+async function saveProfile() {
+    try {
 
-const selectedGender = localStorage.getItem('selectedGender') || '';
-const selectedCountry = localStorage.getItem('selectedCountry') || '';
-const selectedCountryCode = localStorage.getItem('selectedCountryCode') || '';
-const selectedMobile = localStorage.getItem('selectedMobile') || '';
-
-function showToast(msg){
-    const div = document.createElement("div");
-    div.className = "toast";
-    div.innerText = msg;
-    document.getElementById("toastContainer").appendChild(div);
-    setTimeout(()=>div.remove(),3000);
-}
-
-function setLoading(show){
-    document.getElementById("loadingOverlay").classList.toggle("active", show);
-}
-
-function validateField(id){
-    const el = document.getElementById(id);
-    return el.value.trim().length > 1;
-}
-
-function handlePhotoSelect(e){
-    const file = e.target.files[0];
-    if(!file) return;
-    selectedFile = file;
-
-    const reader = new FileReader();
-    reader.onload = (ev)=>{
-        document.getElementById("previewImg").src = ev.target.result;
-        uploadedPhotoURL = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-async function uploadToCloudinary(file){
-    try{
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", cloudinaryConfig.uploadPreset);
-
-        const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
-            { method:"POST", body: formData }
-        );
-
-        const data = await res.json();
-
-        if(!data.secure_url){
-            throw new Error("Upload failed");
-        }
-
-        return data.secure_url;
-
-    }catch(err){
-        throw new Error("Image upload failed");
-    }
-}
-
-async function saveProfile(){
-    try{
-
-        const user = auth?.currentUser;
-
-        if(!user){
-            showToast("Login needed");
+        // 🔥 Check Firebase loaded
+        if (typeof auth === "undefined" || typeof db === "undefined") {
+            showToast("❌ Firebase not loaded");
             return;
         }
 
+        const user = auth.currentUser;
+
+        if (!user) {
+            showToast("❌ Login needed");
+            setTimeout(() => window.location.href = "login.html", 1500);
+            return;
+        }
+
+        // 🔥 Validate fields
         const name = document.getElementById("nameInput").value.trim();
         const dob = document.getElementById("dobInput").value;
 
-        if(name.length < 2){
-            showToast("Valid name দাও");
+        if (name.length < 2) {
+            showToast("❌ Name too short");
             return;
         }
 
-        if(!dob){
-            showToast("DOB দাও");
+        if (!dob) {
+            showToast("❌ Date of birth required");
             return;
         }
 
-        setLoading(true);
+        // 🔥 Loading UI
+        document.getElementById("loadingOverlay").classList.add("active");
+        document.getElementById("submitBtn").disabled = true;
 
-        let photo = uploadedPhotoURL || "";
+        let finalPhotoURL = uploadedPhotoURL || user.photoURL || "";
 
-        if(selectedFile){
-            photo = await uploadToCloudinary(selectedFile);
+        // 📸 Upload photo if selected
+        if (selectedFile) {
+            finalPhotoURL = await uploadToCloudinary(selectedFile);
         }
 
+        // 🔢 USER ID GENERATOR (NO DUPLICATE)
+        const counterRef = db.collection("counters").doc("userCount");
+
+        let numericId;
+
+        const existing = await db.collection("users").doc(user.uid).get();
+
+        if (existing.exists && existing.data().userId) {
+            numericId = existing.data().userId;
+        } else {
+            numericId = await db.runTransaction(async (t) => {
+                const snap = await t.get(counterRef);
+
+                let count = 0;
+                if (snap.exists && snap.data().count) {
+                    count = snap.data().count;
+                }
+
+                const newId = count + 1;
+
+                t.set(counterRef, { count: newId });
+
+                return newId;
+            });
+        }
+
+        // 💾 SAVE TO FIRESTORE
         await db.collection("users").doc(user.uid).set({
             uid: user.uid,
-            name,
-            dob,
+            userId: numericId, // 👈 YOUR UNIQUE ID
+            name: name,
+            dob: dob,
             gender: selectedGender,
             country: selectedCountry,
             countryCode: selectedCountryCode,
             mobile: selectedMobile,
-            photoURL: photo,
-            profileComplete: true
+            photoURL: finalPhotoURL,
+            profileComplete: true,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        showToast("Profile Saved ✅");
+        // 🔥 UPDATE AUTH PROFILE
+        await user.updateProfile({
+            displayName: name,
+            photoURL: finalPhotoURL
+        });
 
-        setTimeout(()=>{
+        // 🧹 CLEAN LOCAL STORAGE
+        localStorage.removeItem("selectedGender");
+        localStorage.removeItem("selectedCountry");
+        localStorage.removeItem("selectedCountryCode");
+        localStorage.removeItem("selectedMobile");
+
+        showToast("✅ Profile saved successfully!");
+
+        setTimeout(() => {
             window.location.href = "home.html";
-        }, 1200);
+        }, 1500);
 
-    }catch(err){
-        showToast(err.message);
-    }finally{
-        setLoading(false);
+    } catch (err) {
+        console.error(err);
+        showToast("❌ " + err.message);
+    } finally {
+        document.getElementById("loadingOverlay").classList.remove("active");
+        document.getElementById("submitBtn").disabled = false;
     }
 }
-
 </script>
 
 </body>
