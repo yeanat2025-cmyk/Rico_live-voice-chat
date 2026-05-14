@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel - Users</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+<script src="config.js"></script>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f5f6ff;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+}
+
+.card{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.user-info{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.user-info img{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+button{
+    background:red;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.view-btn{
+    background:blue;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔥 Admin Panel - Users</h1>
+
+<div id="usersContainer"></div>
+
+<script>
+
+const container = document.getElementById("usersContainer");
+
+// Load users
+async function loadUsers(){
+    const snap = await db.collection("users").get();
+    container.innerHTML = "";
+
+    snap.forEach(doc=>{
+        const u = doc.data();
+
+        container.innerHTML += `
+        <div class="card">
+            <div class="user-info">
+                <img src="${u.photoURL || 'https://via.placeholder.com/50'}">
+                <div>
+                    <b>${u.name || 'No Name'}</b><br>
+                    <small>ID: ${u.userId || 'N/A'}</small>
+                </div>
+            </div>
+
+            <div>
+                <button class="view-btn" onclick="viewUser('${doc.id}')">View</button>
+                <button onclick="deleteUser('${doc.id}')">Delete</button>
+            </div>
+        </div>
+        `;
+    });
+}
+
+// Delete user
+async function deleteUser(id){
+    if(confirm("Delete this user?")){
+        await db.collection("users").doc(id).delete();
+        loadUsers();
+    }
+}
+
+// View user
+function viewUser(id){
+    db.collection("users").doc(id).get().then(doc=>{
+        alert(JSON.stringify(doc.data(), null, 2));
+    });
+}
+
+loadUsers();
+
+</script>
+
+</body>
+</html>
