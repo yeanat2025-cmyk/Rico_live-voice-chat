@@ -14,13 +14,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Arial', sans-serif;
             overflow: hidden;
             background: #000;
         }
-        
+
         .splash-container {
             width: 100vw;
             height: 100vh;
@@ -29,7 +29,7 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         /* Splash Video Background */
         .splash-video {
             position: absolute;
@@ -40,17 +40,18 @@
             object-fit: cover;
             z-index: 1;
         }
-        
+
         /* Fallback overlay if video fails */
         .video-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;            background: linear-gradient(135deg, #1a0b2e 0%, #3b156e 50%, #667eea 100%);
+            height: 100%;
+            background: linear-gradient(135deg, #1a0b2e 0%, #3b156e 50%, #667eea 100%);
             z-index: 0;
         }
-        
+
         /* Content on top of video */
         .content-overlay {
             position: relative;
@@ -59,7 +60,7 @@
             padding: 20px;
             animation: fadeIn 1.5s ease-in-out;
         }
-        
+
         .app-logo {
             width: 140px;
             height: 140px;
@@ -70,7 +71,7 @@
             margin-bottom: 25px;
             animation: pulse 2s infinite;
         }
-        
+
         .app-name {
             font-size: 2.8rem;
             font-weight: bold;
@@ -79,47 +80,48 @@
             margin-bottom: 10px;
             letter-spacing: 2px;
         }
-        
+
         .tagline {
             color: rgba(255, 255, 255, 0.9);
             font-size: 1.1rem;
             margin-bottom: 40px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
-        
+
         /* Loading Dots */
         .loader {
             display: flex;
             justify-content: center;
             gap: 8px;
         }
-        
+
         .loader-dot {
             width: 12px;
-            height: 12px;            background: #ff4081;
+            height: 12px;
+            background: #ff4081;
             border-radius: 50%;
             animation: bounce 1.4s ease-in-out infinite both;
         }
-        
+
         .loader-dot:nth-child(1) { animation-delay: -0.32s; }
         .loader-dot:nth-child(2) { animation-delay: -0.16s; }
         .loader-dot:nth-child(3) { animation-delay: 0s; }
-        
+
         @keyframes bounce {
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1); }
         }
-        
+
         @keyframes pulse {
             0%, 100% { transform: scale(1); box-shadow: 0 15px 50px rgba(255, 64, 129, 0.5); }
             50% { transform: scale(1.05); box-shadow: 0 20px 60px rgba(255, 64, 129, 0.8); }
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         /* Skip Button */
         .skip-btn {
             position: absolute;
@@ -135,7 +137,7 @@
             z-index: 3;
             transition: all 0.3s ease;
         }
-        
+
         .skip-btn:hover {
             background: rgba(255, 255, 255, 0.4);
             border-color: white;
@@ -145,75 +147,82 @@
 <body>
 
     <div class="splash-container">
-        <!-- Fallback Background -->        <div class="video-overlay"></div>
-        
+        <!-- Fallback Background -->
+        <div class="video-overlay"></div>
+
         <!-- Splash Video -->
         <video class="splash-video" id="splashVideo" autoplay muted playsinline loop>
             <source src="assets/video/splash.mp4" type="video/mp4">
-            Your browser does not support the video tag.
         </video>
-        
+
         <!-- Content -->
         <div class="content-overlay">
             <img src="assets/app_logo.png" alt="Rico Live" class="app-logo">
             <h1 class="app-name">Kaira Live</h1>
             <p class="tagline">Go Live • Make Friends • Earn Gifts</p>
-            
+
             <div class="loader">
                 <div class="loader-dot"></div>
                 <div class="loader-dot"></div>
                 <div class="loader-dot"></div>
             </div>
         </div>
-        
+
         <!-- Skip Button -->
         <button class="skip-btn" onclick="skipSplash()">Skip</button>
     </div>
 
     <script>
-        // Auto redirect after 3.5 seconds
-        let splashTimer = setTimeout(() => {
-            goToNextPage();
-        }, 5300);
-        
-        // Skip splash on click/tap
-        function skipSplash() {
-            clearTimeout(splashTimer);
-            goToNextPage();
-        }
-        
-        // Handle video load error - still redirect
-        document.getElementById('splashVideo').onerror = function() {
-            console.log("Video failed to load, using fallback");
-        };
-        
-        function goToNextPage() {
-            // Check if user is already logged in
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    // User logged in - check profile status
-                    db.collection('users').doc(user.uid).get().then((doc) => {
-                        if (doc.exists && doc.data().profileComplete) {
-                            window.location.href = 'home.html';                        } else {
-                            window.location.href = 'gender.html';
-                        }
-                    }).catch(() => {
-                        window.location.href = 'login.html';
-                    });
-                } else {
-                    // Not logged in - go to login
-                    window.location.href = 'login.html';
-                }
-            });
-        }
-        
-        // Allow tap anywhere to skip (optional)
-        document.body.addEventListener('click', function(e) {
-            if (!e.target.closest('.skip-btn')) {
-                // Uncomment below to enable tap-anywhere skip
-                // skipSplash();
+        let redirectReady = false; // timer শেষ হলে true
+        let authReady     = false; // Firebase auth check শেষ হলে true
+        let targetPage    = 'login.html'; // default
+
+        // ── 1) Splash timer (3.5s) ───────────────────────────────
+        setTimeout(() => {
+            redirectReady = true;
+            if (authReady) doRedirect();
+        }, 3500);
+
+        // ── 2) Firebase auth check (সাথে সাথে চলে) ──────────────
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe(); // একবারই চলবে
+
+            if (user) {
+                // আগে login ছিল → সরাসরি home
+                targetPage = 'home.html';
+            } else {
+                // প্রথমবার বা logout করা → login
+                targetPage = 'login.html';
             }
+
+            authReady = true;
+            if (redirectReady) doRedirect();
         });
+
+        // ── 3) Redirect ──────────────────────────────────────────
+        function doRedirect() {
+            window.location.href = targetPage;
+        }
+
+        // ── Skip Button ──────────────────────────────────────────
+        function skipSplash() {
+            if (authReady) {
+                doRedirect();
+            } else {
+                // auth এখনো ready না হলে অপেক্ষা করো
+                const wait = setInterval(() => {
+                    if (authReady) {
+                        clearInterval(wait);
+                        doRedirect();
+                    }
+                }, 100);
+            }
+        }
+
+        // Video load error হলেও fallback background দেখাবে
+        document.getElementById('splashVideo').onerror = function () {
+            console.log('Video failed, using fallback background');
+        };
     </script>
 </body>
 </html>
