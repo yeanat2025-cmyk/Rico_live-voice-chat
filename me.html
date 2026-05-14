@@ -10,7 +10,6 @@
     <script src="config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -18,15 +17,11 @@
             padding-bottom: 70px;
             color: white;
         }
-        
-        /* Header Section */
         .header-section {
             padding: 30px 20px 20px;
             text-align: center;
             position: relative;
         }
-        
-        /* Edit Button */
         .edit-btn {
             position: absolute;
             top: 20px;
@@ -42,18 +37,13 @@
             font-size: 1.3rem;
             transition: background 0.3s;
         }
-        
-        .edit-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* Profile Avatar */        .profile-avatar-container {
+        .edit-btn:hover { background: rgba(255,255,255,0.3); }
+        .profile-avatar-container {
             position: relative;
             width: 120px;
             height: 120px;
             margin: 0 auto 20px;
         }
-        
         .profile-avatar {
             width: 120px;
             height: 120px;
@@ -61,8 +51,8 @@
             object-fit: cover;
             border: 4px solid white;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.2);
         }
-        
         .live-badge {
             position: absolute;
             bottom: 5px;
@@ -75,8 +65,6 @@
             font-weight: bold;
             border: 2px solid white;
         }
-        
-        /* Name Section */
         .profile-name {
             font-size: 1.5rem;
             font-weight: bold;
@@ -85,47 +73,48 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
-        
         .country-flag {
             width: 24px;
-            height: 24px;
+            height: 18px;
             object-fit: cover;
+            border-radius: 3px;
         }
-        
-        .gender-icon {
-            width: 20px;
-            height: 20px;
-        }        
-        /* User ID */
+        .gender-text {
+            font-size: 1.2rem;
+        }
         .user-id {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.85);
             font-size: 0.95rem;
             margin-bottom: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 6px;
         }
-        
+        .user-id-number {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 1rem;
+        }
         .copy-id {
             cursor: pointer;
-            opacity: 0.7;
+            opacity: 0.8;
             transition: opacity 0.3s;
+            font-size: 1.1rem;
         }
-        
-        .copy-id:hover {
-            opacity: 1;
-        }
-        
-        /* Stats/Badges Section */
+        .copy-id:hover { opacity: 1; }
         .stats-container {
             display: flex;
             justify-content: center;
             gap: 15px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
-        
         .stat-badge {
             display: flex;
             align-items: center;
@@ -136,32 +125,11 @@
             backdrop-filter: blur(10px);
             min-width: 80px;
         }
-        
-        .stat-badge.gold {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #333;
-        }
-        
-        .stat-badge.diamond {
-            background: linear-gradient(135deg, #b9f2ff 0%, #7dd3fc 100%);
-            color: #333;
-        }        
-        .stat-badge.rose {
-            background: linear-gradient(135deg, #ffb6c1 0%, #ff8fa3 100%);
-            color: #333;
-        }
-        
-        .stat-icon {
-            width: 24px;
-            height: 24px;
-        }
-        
-        .stat-value {
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        
-        /* Content Sections */
+        .stat-badge.gold { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; }
+        .stat-badge.diamond { background: linear-gradient(135deg, #b9f2ff 0%, #7dd3fc 100%); color: #333; }
+        .stat-badge.rose { background: linear-gradient(135deg, #ffb6c1 0%, #ff8fa3 100%); color: #333; }
+        .stat-icon { width: 24px; height: 24px; }
+        .stat-value { font-weight: bold; font-size: 1rem; }
         .content-section {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -169,7 +137,6 @@
             border-radius: 15px;
             padding: 15px;
         }
-        
         .section-title {
             font-size: 1.1rem;
             font-weight: bold;
@@ -178,15 +145,12 @@
             align-items: center;
             gap: 8px;
         }
-        
-        /* Menu Grid */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 15px;
         }
-        
         .menu-item {
             display: flex;
             flex-direction: column;
@@ -194,11 +158,8 @@
             gap: 8px;
             cursor: pointer;
             transition: transform 0.2s;
-        }        
-        .menu-item:hover {
-            transform: scale(1.1);
         }
-        
+        .menu-item:hover { transform: scale(1.1); }
         .menu-icon {
             width: 50px;
             height: 50px;
@@ -209,19 +170,8 @@
             justify-content: center;
             font-size: 1.5rem;
         }
-        
-        .menu-label {
-            font-size: 0.85rem;
-            text-align: center;
-        }
-        
-        /* Menu List */
-        .menu-list {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
+        .menu-label { font-size: 0.85rem; text-align: center; }
+        .menu-list { background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; }
         .menu-list-item {
             display: flex;
             align-items: center;
@@ -230,39 +180,20 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        
-        .menu-list-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .menu-list-item:last-child {
-            border-bottom: none;
-        }
-        
+        .menu-list-item:hover { background: rgba(255,255,255,0.1); }
+        .menu-list-item:last-child { border-bottom: none; }
         .menu-list-icon {
             width: 30px;
             height: 30px;
             margin-right: 12px;
-            display: flex;            align-items: center;
+            display: flex;
+            align-items: center;
             justify-content: center;
             font-size: 1.2rem;
         }
-        
-        .menu-list-text {
-            flex: 1;
-            text-align: left;
-        }
-        
-        .menu-list-value {
-            color: rgba(255,255,255,0.7);
-            margin-right: 10px;
-        }
-        
-        .menu-arrow {
-            opacity: 0.7;
-        }
-        
-        /* Bottom Navigation */
+        .menu-list-text { flex: 1; text-align: left; }
+        .menu-list-value { color: rgba(255,255,255,0.7); margin-right: 10px; }
+        .menu-arrow { opacity: 0.7; }
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -276,7 +207,6 @@
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             z-index: 1000;
         }
-        
         .nav-item {
             display: flex;
             flex-direction: column;
@@ -288,60 +218,64 @@
             color: #999;
             transition: color 0.3s;
         }
-        
-        .nav-item.active {
-            color: #667eea;
+        .nav-item.active { color: #667eea; }
+        .nav-icon { font-size: 1.5rem; }
+        .nav-label { font-size: 0.75rem; font-weight: 500; }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
         }
-                .nav-icon {
-            font-size: 1.5rem;
+        .toast-msg {
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            animation: fadeInOut 2s ease forwards;
         }
-        
-        .nav-label {
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 50px;
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Section with Profile -->
     <div class="header-section">
-        <!-- Edit Button -->
         <div class="edit-btn" onclick="editProfile()">✏️</div>
-        
-        <!-- Profile Avatar -->
+
         <div class="profile-avatar-container">
             <img src="" alt="Profile" class="profile-avatar" id="userPhoto">
             <div class="live-badge">🔴 LIVE</div>
         </div>
-        
-        <!-- Name with Country and Gender -->
-        <div class="profile-name" id="userName">
-            Loading...
-            <img src="" alt="Country" class="country-flag" id="countryFlag">
-            <img src="" alt="Gender" class="gender-icon" id="genderIcon">
+
+        <div class="profile-name" id="profileNameRow">
+            <span id="userName">Loading...</span>
+            <img src="" alt="Country" class="country-flag" id="countryFlag" style="display:none;">
+            <span class="gender-text" id="genderIcon"></span>
         </div>
-        
-        <!-- User ID -->
+
+        <!-- ── Numeric User ID ── -->
         <div class="user-id">
             <span>ID:</span>
-            <span id="userId">******</span>
+            <span class="user-id-number" id="userId">------</span>
             <span class="copy-id" onclick="copyUserId()">📋</span>
         </div>
-        
-        <!-- Stats/Badges -->
+
         <div class="stats-container">
             <div class="stat-badge gold">
                 <img src="https://img.icons8.com/color/48/star.png" class="stat-icon" alt="Gold">
                 <span class="stat-value" id="goldStat">0</span>
             </div>
-            <div class="stat-badge rose">                <img src="https://img.icons8.com/color/48/heart.png" class="stat-icon" alt="Rose">
+            <div class="stat-badge rose">
+                <img src="https://img.icons8.com/color/48/heart.png" class="stat-icon" alt="Rose">
                 <span class="stat-value" id="roseStat">0</span>
             </div>
             <div class="stat-badge diamond">
@@ -351,7 +285,6 @@
         </div>
     </div>
 
-    <!-- Menu Section -->
     <div class="content-section">
         <div class="section-title">👑 My Level</div>
         <div class="menu-grid">
@@ -364,7 +297,7 @@
                 <div class="menu-label">Badge</div>
             </div>
             <div class="menu-item" onclick="alert('Family')">
-                <div class="menu-icon">👨‍‍👧</div>
+                <div class="menu-icon">👨‍👧</div>
                 <div class="menu-label">Family</div>
             </div>
             <div class="menu-item" onclick="alert('Mall')">
@@ -374,7 +307,6 @@
         </div>
     </div>
 
-    <!-- Menu List -->
     <div class="content-section">
         <div class="menu-list">
             <div class="menu-list-item" onclick="alert('Celebrity Gifts')">
@@ -390,14 +322,15 @@
             <div class="menu-list-item" onclick="alert('My Agency')">
                 <div class="menu-list-icon">🏢</div>
                 <div class="menu-list-text">My agency</div>
-                <span style="margin-right: 10px;">💰</span>            </div>
+                <span style="margin-right: 10px;">💰</span>
+            </div>
             <div class="menu-list-item" onclick="alert('My Invitation')">
                 <div class="menu-list-icon">💌</div>
                 <div class="menu-list-text">My invitation</div>
                 <span class="menu-arrow">›</span>
             </div>
-            <div class="menu-list-item" onclick="alert('My Chat Price')">
-                <div class="menu-list-icon">🥭</div>
+            <div class="menu-list-item" onclick="alert('Live support')">
+                <div class="menu-list-icon">🙋‍♀</div>
                 <div class="menu-list-text">My chat price</div>
                 <div class="menu-list-value" id="chatPrice">1260 🥭/min</div>
                 <span class="menu-arrow">›</span>
@@ -410,7 +343,6 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a href="home.html" class="nav-item">
             <span class="nav-icon">🏠</span>
@@ -430,8 +362,9 @@
         </a>
     </nav>
 
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
-        // Load user data from Firebase
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -439,90 +372,89 @@
                 loadUserProfile(user.uid);
             }
         });
+
         async function loadUserProfile(uid) {
             try {
                 const doc = await db.collection('users').doc(uid).get();
-                
+
                 if (doc.exists) {
                     const data = doc.data();
-                    
-                    // Set profile photo
+
+                    // Photo
                     document.getElementById('userPhoto').src = data.photoURL || 'https://via.placeholder.com/120';
-                    
-                    // Set name
-                    document.getElementById('userName').childNodes[0].textContent = data.name || 'User';
-                    
-                    // Set User ID
-                    const shortUid = uid.substring(0, 8).toUpperCase();
-                    document.getElementById('userId').textContent = shortUid;
-                    
-                    // Set country flag
+
+                    // Name
+                    document.getElementById('userName').textContent = data.name || 'User';
+
+                    // ── Numeric User ID দেখাও ──
+                    document.getElementById('userId').textContent = data.userId || '------';
+
+                    // Country flag
                     if (data.country) {
-                        const flagUrl = getCountryFlag(data.country);
-                        document.getElementById('countryFlag').src = flagUrl;
+                        const flagEl = document.getElementById('countryFlag');
+                        flagEl.src = getCountryFlag(data.country);
+                        flagEl.style.display = 'inline-block';
                     }
-                    
-                    // Set gender icon
+
+                    // Gender icon
                     if (data.gender) {
-                        const genderIcon = data.gender === 'male' ? '♂️' : '♀️';
-                        document.getElementById('genderIcon').src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text y="20" font-size="20">${genderIcon}</text></svg>`;
+                        document.getElementById('genderIcon').textContent =
+                            data.gender === 'male' ? '♂️' : '♀️';
                     }
-                    
-                    // Set stats (you can customize these values)
-                    document.getElementById('goldStat').textContent = data.goldCoins || 0;
-                    document.getElementById('roseStat').textContent = data.roses || 0;
-                    document.getElementById('diamondStat').textContent = data.diamonds || 0;
-                    
-                    // Set chat price
+
+                    // Stats
+                    document.getElementById('goldStat').textContent    = data.goldCoins || 0;
+                    document.getElementById('roseStat').textContent     = data.roses || 0;
+                    document.getElementById('diamondStat').textContent  = data.diamonds || 0;
+
+                    // Chat price
                     document.getElementById('chatPrice').textContent = (data.chatPrice || 1260) + ' 🥭/min';
-                    
+
                 } else {
-                    alert('Profile not found');
-                    window.location.href = 'userinfo.html';
+                    window.location.href = 'profile-setup.html';
                 }
             } catch (error) {
-                console.error('Error loading profile:', error);
+                showToast('Error: ' + error.message);
             }
         }
 
-        // Get country flag
         function getCountryFlag(countryCode) {
-            const flags = {
-                'BD': 'https://flagcdn.com/w40/bd.png',                'IN': 'https://flagcdn.com/w40/in.png',
-                'PK': 'https://flagcdn.com/w40/pk.png',
-                'NG': 'https://flagcdn.com/w40/ng.png',
-                'US': 'https://flagcdn.com/w40/us.png',
-                'GB': 'https://flagcdn.com/w40/gb.png',
-                'SA': 'https://flagcdn.com/w40/sa.png',
-                'AE': 'https://flagcdn.com/w40/ae.png'
-            };
-            return flags[countryCode] || 'https://flagcdn.com/w40/bd.png';
+            const code = countryCode.toLowerCase();
+            return `https://flagcdn.com/w40/${code}.png`;
         }
 
-        // Copy User ID
         function copyUserId() {
             const userId = document.getElementById('userId').textContent;
+            if (userId === '------') return;
             navigator.clipboard.writeText(userId).then(() => {
-                alert('ID copied: ' + userId);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
+                showToast('✅ ID copied: ' + userId);
+            }).catch(() => {
+                showToast('ID: ' + userId);
             });
         }
 
-        // Edit Profile
         function editProfile() {
             window.location.href = 'profile-edit.html';
         }
 
-        // Logout
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 auth.signOut().then(() => {
                     window.location.href = 'login.html';
                 }).catch((error) => {
-                    alert('Error: ' + error.message);
+                    showToast('Error: ' + error.message);
                 });
             }
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2200);
         }
     </script>
 </body>
