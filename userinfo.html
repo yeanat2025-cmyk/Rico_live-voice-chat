@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -15,512 +16,318 @@
             --primary-dark: #764ba2;
             --success: #10b981;
             --error: #ef4444;
-            --light: #f9fafb;
             --border: #e5e7eb;
             --text: #1f2937;
             --text-muted: #6b7280;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Nunito', sans-serif;
             background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
             min-height: 100vh;
             padding: 20px;
             color: var(--text);
         }
-        .header { margin-bottom: 30px; text-align: center; }
-        .header h1 { font-size: 2rem; color: var(--text); margin-bottom: 8px; font-weight: 600; }
-        .header p { color: var(--text-muted); font-size: 1rem; }
+        .header { margin-bottom: 24px; text-align: center; }
+        .header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+        .header p  { color: var(--text-muted); font-size: 0.95rem; }
         .form-card {
             background: white;
             border-radius: 24px;
-            padding: 32px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-            max-width: 500px;
-            margin: 0 auto;
+            padding: 28px 24px;
+            max-width: 480px;
+            margin: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.07);
         }
         .info-banner {
-            background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
+            background: rgba(102,126,234,0.08);
             border: 1px solid rgba(102,126,234,0.2);
+            padding: 12px 14px;
             border-radius: 14px;
-            padding: 14px 16px;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
+            font-size: 0.88rem;
+            color: var(--primary-dark);
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
-        .info-banner span { font-size: 0.9rem; color: var(--primary); font-weight: 500; }
-        .photo-section { text-align: center; margin-bottom: 32px; }
+        .photo-section { text-align: center; margin-bottom: 24px; }
         .photo-container {
-            position: relative;
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 16px;
-            cursor: pointer;
+            width: 120px; height: 120px;
+            margin: auto; position: relative; cursor: pointer;
         }
         .photo-wrapper {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            background: var(--light);
+            width: 100%; height: 100%;
+            border-radius: 50%; overflow: hidden;
             border: 3px solid var(--border);
-            transition: all 0.3s ease;
+            transition: border-color 0.2s;
         }
-        .photo-container:hover .photo-wrapper {
-            border-color: var(--primary);
-            box-shadow: 0 8px 25px rgba(102,126,234,0.2);
-        }
-        .photo-preview { width: 100%; height: 100%; object-fit: cover; }
-        .camera-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            color: white;
-            font-size: 32px;
-        }
-        .photo-container:hover .camera-overlay { opacity: 1; }
+        .photo-container:hover .photo-wrapper { border-color: var(--primary); }
+        .photo-preview { width: 100%; height: 100%; object-fit: cover; background: #f3f4f6; }
         .camera-badge {
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            border: 4px solid white;
-            box-shadow: 0 4px 12px rgba(102,126,234,0.35);
-            transition: transform 0.3s ease;
+            position: absolute; bottom: 2px; right: 2px;
+            background: var(--primary); color: white;
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; box-shadow: 0 2px 8px rgba(102,126,234,0.4);
         }
-        .photo-container:hover .camera-badge { transform: scale(1.1); }
-        .photo-hint { color: var(--primary); font-size: 0.95rem; font-weight: 500; margin-top: 8px; }
-        .upload-status {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-            min-height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .upload-status.uploading { color: var(--primary); }
-        .upload-status.success { color: var(--success); }
-        .upload-status.error { color: var(--error); }
-        .upload-spinner {
-            width: 14px; height: 14px;
-            border: 2px solid rgba(102,126,234,0.3);
-            border-top: 2px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .form-group { margin-bottom: 20px; }
+        .photo-hint { margin-top: 8px; font-size: 0.8rem; color: var(--text-muted); }
+        .form-group { margin-bottom: 16px; }
         .form-group label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            color: var(--text);
-            font-weight: 500;
-            font-size: 0.95rem;
+            display: block; font-size: 0.82rem; font-weight: 700;
+            color: var(--text-muted); margin-bottom: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .required { color: var(--error); }
-        .char-count { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
         .form-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            outline: none;
-            background: white;
-            color: var(--text);
+            width: 100%; padding: 13px 14px; border-radius: 12px;
+            border: 2px solid var(--border); outline: none;
+            font-family: 'Nunito', sans-serif; font-size: 0.95rem;
+            color: var(--text); transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafafa;
         }
         .form-group input:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            background: white;
         }
-        .validation-feedback {
-            font-size: 0.85rem;
-            margin-top: 6px;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 8px;
-            border-radius: 8px;
-            display: none;
-        }
-        .validation-feedback.error { display: flex; color: var(--error); background: rgba(239,68,68,0.08); }
-        .validation-feedback.success { display: flex; color: var(--success); background: rgba(16,185,129,0.08); }
+        .form-group input.error { border-color: var(--error); }
+        .field-error { font-size: 0.78rem; color: var(--error); margin-top: 4px; display: none; }
+        .field-error.show { display: block; }
         .submit-btn {
-            width: 100%;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 24px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+            width: 100%; padding: 14px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; font-family: 'Nunito', sans-serif;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            letter-spacing: 0.5px; transition: opacity 0.2s, transform 0.1s; margin-top: 6px;
         }
-        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
-        .submit-btn:disabled { background: var(--border); cursor: not-allowed; color: var(--text-muted); box-shadow: none; }
-        .toast-container {
-            position: fixed;
-            top: 20px; right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 360px;
-            width: calc(100% - 40px);
-        }
+        .submit-btn:hover { opacity: 0.92; }
+        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
         .toast {
-            padding: 14px 16px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            animation: slideIn 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            word-break: break-word;
+            padding: 11px 16px; border-radius: 12px; margin-bottom: 10px;
+            font-size: 0.88rem; font-weight: 700; font-family: 'Nunito', sans-serif;
+            animation: slideIn 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
         }
-        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .toast.success { background: var(--success); color: white; }
-        .toast.error { background: var(--error); color: white; }
-        .toast.info { background: var(--primary); color: white; }
+        .toast.error   { background: var(--error);   color: white; }
+        .toast.info    { background: var(--primary);  color: white; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
         .loading-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 9999;
-            color: white;
-            text-align: center;
-            padding: 20px;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            justify-content: center; align-items: center;
+            z-index: 9999; flex-direction: column; gap: 14px;
         }
         .loading-overlay.active { display: flex; }
-        .spinner-large {
-            width: 50px; height: 50px;
-            border: 4px solid rgba(255,255,255,0.2);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
+        .spinner {
+            width: 44px; height: 44px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
-        .loading-text { font-size: 1rem; margin-top: 8px; opacity: 0.9; }
-        @media (max-width: 640px) {
-            .form-card { padding: 24px; border-radius: 20px; }
-            .header h1 { font-size: 1.5rem; }
-            .toast-container { left: 10px; right: 10px; top: auto; bottom: 20px; width: auto; }
-        }
+        .loading-overlay span { color: white; font-family: 'Nunito', sans-serif; font-weight: 700; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>📋 Complete Your Profile</h1>
-        <p>Almost done! Just a few more details</p>
+<div class="header">
+    <h1>📋 Complete Your Profile</h1>
+    <p>Just a few more details!</p>
+</div>
+
+<div class="form-card">
+    <div class="info-banner">
+        <span>ℹ️</span>
+        <span id="bannerText">Loading your info...</span>
     </div>
 
-    <div class="form-card">
-        <div class="info-banner" id="infoBanner">
-            <span>🌍</span>
-            <span id="bannerText">Loading...</span>
+    <div class="photo-section">
+        <div class="photo-container" onclick="document.getElementById('galleryInput').click()">
+            <div class="photo-wrapper">
+                <img id="previewImg" class="photo-preview"
+                     src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f3f4f6'/%3E%3Ccircle cx='60' cy='45' r='20' fill='%23d1d5db'/%3E%3Cellipse cx='60' cy='95' rx='30' ry='20' fill='%23d1d5db'/%3E%3C/svg%3E"
+                     alt="Profile Photo">
+            </div>
+            <div class="camera-badge">📸</div>
         </div>
-
-        <div class="photo-section">
-            <div class="photo-container" onclick="document.getElementById('galleryInput').click()">
-                <div class="photo-wrapper">
-                    <img src="https://via.placeholder.com/140?text=Photo" alt="Profile" class="photo-preview" id="previewImg">
-                </div>
-                <div class="camera-overlay"><span>🖼️</span></div>
-                <div class="camera-badge">📸</div>
-            </div>
-            <div class="photo-hint">Click to choose from gallery</div>
-            <div class="upload-status" id="uploadStatus"></div>
-            <input type="file" id="galleryInput" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)">
-        </div>
-
-        <form id="profileForm" novalidate>
-            <div class="form-group">
-                <label>
-                    <span>Full Name <span class="required">*</span></span>
-                    <span class="char-count"><span id="nameLength">0</span>/50</span>
-                </label>
-                <input type="text" id="nameInput" placeholder="Enter your full name" maxlength="50" oninput="validateField('nameInput')">
-                <div class="validation-feedback" id="nameInputFeedback"></div>
-            </div>
-
-            <div class="form-group">
-                <label>Date of Birth <span class="required">*</span></label>
-                <input type="date" id="dobInput" onchange="validateField('dobInput')">
-                <div class="validation-feedback" id="dobInputFeedback"></div>
-            </div>
-
-            <button type="button" class="submit-btn" id="submitBtn" onclick="saveProfile()">
-                COMPLETE PROFILE
-            </button>
-        </form>
+        <p class="photo-hint">Tap to upload photo</p>
+        <input type="file" id="galleryInput" hidden accept="image/*" onchange="handlePhotoSelect(event)">
     </div>
 
-    <div class="toast-container" id="toastContainer"></div>
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner-large"></div>
-        <div class="loading-text" id="loadingText">Saving your profile...</div>
+    <div class="form-group">
+        <label for="nameInput">Full Name</label>
+        <input id="nameInput" placeholder="Enter your full name" oninput="clearError('nameInput')">
+        <div class="field-error" id="nameError">Please enter a valid name (min 2 characters)</div>
     </div>
 
-    <script>
-        let uploadedPhotoURL = null;
-        let selectedFile = null;
+    <div class="form-group">
+        <label for="dobInput">Date of Birth</label>
+        <input id="dobInput" type="date" onchange="clearError('dobInput')">
+        <div class="field-error" id="dobError">Please enter a valid date of birth</div>
+    </div>
 
-        const selectedGender      = localStorage.getItem('selectedGender') || '';
-        const selectedCountry     = localStorage.getItem('selectedCountry') || '';
-        const selectedCountryCode = localStorage.getItem('selectedCountryCode') || '';
-        const selectedMobile      = localStorage.getItem('selectedMobile') || '';
+    <button class="submit-btn" id="submitBtn" onclick="saveProfile()">COMPLETE PROFILE</button>
+</div>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof cloudinaryConfig === 'undefined') {
-                showToast('⚠️ config.js লোড হয়নি!', 'error');
-            }
-            if (selectedCountry && selectedMobile) {
-                const genderEmoji = selectedGender === 'male' ? '👨' : selectedGender === 'female' ? '👩' : '';
-                document.getElementById('bannerText').textContent =
-                    `${genderEmoji} ${selectedGender || ''} · 🌍 ${selectedCountry} · 📞 ${selectedCountryCode} ${selectedMobile}`;
-            } else {
-                document.getElementById('infoBanner').style.display = 'none';
-            }
-            document.getElementById('dobInput').max = new Date().toISOString().split('T')[0];
+<div class="toast-container" id="toastContainer"></div>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <span>Saving your profile...</span>
+</div>
+
+<script>
+    let uploadedPhotoURL = null;
+    let selectedFile     = null;
+
+    const selectedGender      = localStorage.getItem('selectedGender')      || '';
+    const selectedCountry     = localStorage.getItem('selectedCountry')     || '';
+    const selectedCountryCode = localStorage.getItem('selectedCountryCode') || '';
+    const selectedMobile      = localStorage.getItem('selectedMobile')      || '';
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const bannerText = document.getElementById('bannerText');
+        bannerText.textContent = (selectedGender && selectedCountry)
+            ? `Signing up as ${selectedGender} from ${selectedCountry}`
+            : 'Complete your profile to get started.';
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) window.location.href = 'login.html';
         });
+    });
 
-        function handlePhotoSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (file.size > 5 * 1024 * 1024) {
-                showToast('❌ Image 5MB এর বেশি হওয়া যাবে না', 'error');
-                return;
-            }
-            selectedFile = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('uploadStatus').innerHTML = '✅ <span>Photo selected</span>';
-                document.getElementById('uploadStatus').className = 'upload-status success';
-            };
-            reader.readAsDataURL(file);
+    function showToast(msg, type = 'info') {
+        const div = document.createElement('div');
+        div.className = `toast ${type}`;
+        div.innerText = msg;
+        document.getElementById('toastContainer').appendChild(div);
+        setTimeout(() => div.remove(), 3000);
+    }
+
+    function setLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('active', show);
+        document.getElementById('submitBtn').disabled = show;
+    }
+
+    function showError(fieldId, errorId, msg) {
+        document.getElementById(fieldId).classList.add('error');
+        const errEl = document.getElementById(errorId);
+        if (msg) errEl.textContent = msg;
+        errEl.classList.add('show');
+    }
+    function clearError(fieldId) {
+        document.getElementById(fieldId).classList.remove('error');
+        const errEl = document.getElementById(fieldId + 'Error');
+        if (errEl) errEl.classList.remove('show');
+    }
+
+    function handlePhotoSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('Image too large. Max 5MB allowed.', 'error');
+            return;
         }
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            document.getElementById('previewImg').src = ev.target.result;
+            uploadedPhotoURL = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 
-        async function uploadToCloudinary(file) {
-            const statusEl = document.getElementById('uploadStatus');
-            statusEl.innerHTML = '<div class="upload-spinner"></div><span>Uploading...</span>';
-            statusEl.className = 'upload-status uploading';
-            setLoadingText('Uploading photo...');
+    async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+        const res  = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
+            { method: 'POST', body: formData }
+        );
+        const data = await res.json();
+        if (!data.secure_url) throw new Error('Image upload failed. Try again.');
+        return data.secure_url;
+    }
 
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-            formData.append('folder', 'rico_live_profiles');
+    /* ── 8-digit unique User ID generate ── */
+    function generateUserId() {
+        return Math.floor(10000000 + Math.random() * 90000000).toString();
+    }
 
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
-                { method: 'POST', body: formData }
-            );
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error('Cloudinary: ' + (errData.error?.message || 'Upload failed ' + response.status));
-            }
-            const data = await response.json();
-            statusEl.innerHTML = '✅ <span>Photo uploaded!</span>';
-            statusEl.className = 'upload-status success';
-            showToast('📸 Photo uploaded!', 'success');
-            return data.secure_url;
+    function validateForm(name, dob) {
+        let valid = true;
+        if (name.length < 2) {
+            showError('nameInput', 'nameError', 'Please enter a valid name (min 2 characters)');
+            valid = false;
         }
-
-        function validateField(fieldId) {
-            const field    = document.getElementById(fieldId);
-            const feedback = document.getElementById(fieldId + 'Feedback');
-            let isValid = false;
-            let message = '';
-
-            if (fieldId === 'nameInput') {
-                const name = field.value.trim();
-                document.getElementById('nameLength').textContent = name.length;
-                if (name.length < 2)    message = '❌ Name কমপক্ষে 2 অক্ষর হতে হবে';
-                else if (name.length > 50) message = '❌ Name 50 অক্ষরের বেশি না';
-                else isValid = true;
-            }
-
-            if (fieldId === 'dobInput') {
-                const dob = field.value;
-                if (!dob) {
-                    message = '❌ Date of birth দাও';
-                } else {
-                    const birthDate = new Date(dob);
-                    const today = new Date();
-                    let age = today.getFullYear() - birthDate.getFullYear();
-                    const m = today.getMonth() - birthDate.getMonth();
-                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-                    if (age < 13)     message = '❌ কমপক্ষে 13 বছর বয়স হতে হবে';
-                    else if (age > 120) message = '❌ Invalid date';
-                    else isValid = true;
-                }
-            }
-
-            if (field.value !== '') {
-                feedback.innerHTML = isValid
-                    ? `<span>✅</span> <span>Looks good!</span>`
-                    : `<span></span> <span>${message}</span>`;
-                feedback.className = `validation-feedback ${isValid ? 'success' : 'error'}`;
-            } else {
-                feedback.innerHTML = '';
-                feedback.className = 'validation-feedback';
-            }
-            return isValid;
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-            toast.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
-        }
-
-        function setLoadingText(text) {
-            document.getElementById('loadingText').textContent = text;
-        }
-
-        if (typeof auth !== 'undefined') {
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    showToast('⚠️ Login নেই, redirect হচ্ছে...', 'error');
-                    setTimeout(() => window.location.href = 'login.html', 2000);
-                } else {
-                    if (user.displayName) {
-                        document.getElementById('nameInput').value = user.displayName;
-                        document.getElementById('nameLength').textContent = user.displayName.length;
-                    }
-                    if (user.photoURL) {
-                        document.getElementById('previewImg').src = user.photoURL;
-                        uploadedPhotoURL = user.photoURL;
-                        document.getElementById('uploadStatus').innerHTML = '✅ <span>Photo already set</span>';
-                        document.getElementById('uploadStatus').className = 'upload-status success';
-                    }
-                }
-            });
+        if (!dob) {
+            showError('dobInput', 'dobError', 'Please enter your date of birth');
+            valid = false;
         } else {
-            showToast('❌ Firebase load হয়নি! config.js চেক করো।', 'error');
+            const age = (Date.now() - new Date(dob)) / (365.25 * 24 * 3600 * 1000);
+            if (age < 13) {
+                showError('dobInput', 'dobError', 'You must be at least 13 years old.');
+                valid = false;
+            }
         }
+        return valid;
+    }
 
-        async function saveProfile() {
-            if (typeof cloudinaryConfig === 'undefined') {
-                showToast('❌ config.js নেই!', 'error'); return;
-            }
-            if (typeof auth === 'undefined' || typeof db === 'undefined') {
-                showToast('❌ Firebase load হয়নি!', 'error'); return;
-            }
-
-            const user = auth.currentUser;
+    async function saveProfile() {
+        try {
+            const user = auth?.currentUser;
             if (!user) {
-                showToast('❌ Login নেই!', 'error');
-                setTimeout(() => window.location.href = 'login.html', 2000);
+                showToast('Session expired. Please log in again.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1500);
                 return;
             }
-
-            const nameValid = validateField('nameInput');
-            const dobValid  = validateField('dobInput');
-            if (!nameValid) { showToast('❌ Valid name দাও', 'error'); return; }
-            if (!dobValid)  { showToast('❌ Date of birth দাও', 'error'); return; }
 
             const name = document.getElementById('nameInput').value.trim();
             const dob  = document.getElementById('dobInput').value;
+            if (!validateForm(name, dob)) return;
 
-            document.getElementById('loadingOverlay').classList.add('active');
-            document.getElementById('submitBtn').disabled = true;
-            setLoadingText('Saving your profile...');
+            setLoading(true);
 
-            try {
-                let finalPhotoURL = uploadedPhotoURL || user.photoURL || '';
+            /* ── userId: আগে থাকলে রাখো, না থাকলে নতুন বানাও ── */
+            const existingDoc    = await db.collection('users').doc(user.uid).get();
+            const existingUserId = existingDoc.exists ? (existingDoc.data()?.userId || null) : null;
+            const userId         = existingUserId || generateUserId();
 
-                // Photo upload
-                if (selectedFile) {
-                    finalPhotoURL = await uploadToCloudinary(selectedFile);
-                }
-
-                setLoadingText('Creating your ID...');
-
-                // ── Numeric User ID ──
-                const counterRef = db.collection('counters').doc('userCount');
-                let numericId;
-
-                const existingDoc = await db.collection('users').doc(user.uid).get();
-                if (existingDoc.exists && existingDoc.data().userId) {
-                    // আগে থেকে ID থাকলে same রাখো
-                    numericId = existingDoc.data().userId;
-                } else {
-                    // নতুন user — counter বাড়াও
-                    numericId = await db.runTransaction(async (t) => {
-                        const snap = await t.get(counterRef);
-                        const newId = (snap.exists ? snap.data().count : 0) + 1;
-                        t.set(counterRef, { count: newId });
-                        return newId;
-                    });
-                }
-
-                setLoadingText('Saving to database...');
-
-                // Firestore save
-                await db.collection('users').doc(user.uid).set({
-                    uid: user.uid,
-                    userId: numericId,
-                    name: name,
-                    dob: dob,
-                    gender: selectedGender,
-                    country: selectedCountry,
-                    countryCode: selectedCountryCode,
-                    mobile: selectedMobile,
-                    photoURL: finalPhotoURL,
-                    profileComplete: true,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-
-                await user.updateProfile({ displayName: name, photoURL: finalPhotoURL });
-
-                ['selectedGender','selectedCountry','selectedCountryCode','selectedMobile']
-                    .forEach(k => localStorage.removeItem(k));
-
-                showToast('✅ Profile saved! 🎉', 'success');
-                setTimeout(() => { window.location.href = 'home.html'; }, 1500);
-
-            } catch (err) {
-                showToast('❌ ' + err.message, 'error');
-                if (err.code) showToast('Code: ' + err.code, 'error');
-            } finally {
-                document.getElementById('loadingOverlay').classList.remove('active');
-                document.getElementById('submitBtn').disabled = false;
+            /* ── Photo ── */
+            let photo = '';
+            if (selectedFile) {
+                photo = await uploadToCloudinary(selectedFile);
             }
+
+            /* ── Firestore ── */
+            await db.collection('users').doc(user.uid).set({
+                uid:             user.uid,
+                userId:          userId,
+                name,
+                dob,
+                gender:          selectedGender,
+                country:         selectedCountry,
+                countryCode:     selectedCountryCode,
+                mobile:          selectedMobile,
+                photoURL:        photo,
+                profileComplete: true,
+                updatedAt:       firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            showToast('Profile saved! ✅', 'success');
+            setTimeout(() => window.location.href = 'home.html', 1200);
+
+        } catch (err) {
+            showToast(err.message || 'Something went wrong.', 'error');
+        } finally {
+            setLoading(false);
         }
-    </script>
+    }
+</script>
 </body>
 </html>

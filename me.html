@@ -8,15 +8,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Nunito', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding-bottom: 70px;
+            padding-bottom: 80px;
             color: white;
         }
+
+        /* ── Header ── */
         .header-section {
             padding: 30px 20px 20px;
             text-align: center;
@@ -24,225 +27,190 @@
         }
         .edit-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
+            top: 20px; right: 20px;
+            width: 40px; height: 40px;
             background: rgba(255,255,255,0.2);
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.3rem;
-            transition: background 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.3rem;
+            transition: background 0.2s;
         }
-        .edit-btn:hover { background: rgba(255,255,255,0.3); }
+        .edit-btn:hover { background: rgba(255,255,255,0.35); }
+
+        /* ── Avatar ── */
         .profile-avatar-container {
             position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
+            width: 120px; height: 120px;
+            margin: 0 auto 16px;
         }
         .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
+            width: 120px; height: 120px;
+            border-radius: 50%; object-fit: cover;
             border: 4px solid white;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             background: rgba(255,255,255,0.2);
         }
         .live-badge {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: #ff4081;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: bold;
+            position: absolute; bottom: 5px; right: 5px;
+            background: #ff4081; color: white;
+            padding: 3px 8px; border-radius: 10px;
+            font-size: 0.7rem; font-weight: 800;
             border: 2px solid white;
         }
+
+        /* ── Name row ── */
         .profile-name {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.5rem; font-weight: 800;
             margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
+            display: flex; align-items: center;
+            justify-content: center; gap: 8px; flex-wrap: wrap;
         }
         .country-flag {
-            width: 24px;
-            height: 18px;
-            object-fit: cover;
-            border-radius: 3px;
+            width: 24px; height: 18px;
+            object-fit: cover; border-radius: 3px;
         }
-        .gender-text {
-            font-size: 1.2rem;
-        }
+
+        /* ── User ID row ── */
         .user-id {
-            color: rgba(255,255,255,0.85);
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: flex; align-items: center;
+            justify-content: center; gap: 8px;
         }
         .user-id-number {
             background: rgba(255,255,255,0.2);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            font-size: 1rem;
+            padding: 5px 14px; border-radius: 20px;
+            font-weight: 800; letter-spacing: 2px; font-size: 1rem;
         }
         .copy-id {
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-            font-size: 1.1rem;
+            cursor: pointer; opacity: 0.8;
+            transition: opacity 0.2s; font-size: 1.1rem;
         }
         .copy-id:hover { opacity: 1; }
+
+        /* ── Stats ── */
         .stats-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center;
+            gap: 12px; flex-wrap: wrap;
         }
         .stat-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 15px;
-            border-radius: 20px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 20px;
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
             min-width: 80px;
         }
-        .stat-badge.gold { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; }
-        .stat-badge.diamond { background: linear-gradient(135deg, #b9f2ff 0%, #7dd3fc 100%); color: #333; }
-        .stat-badge.rose { background: linear-gradient(135deg, #ffb6c1 0%, #ff8fa3 100%); color: #333; }
-        .stat-icon { width: 24px; height: 24px; }
-        .stat-value { font-weight: bold; font-size: 1rem; }
+        .stat-badge.gold    { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #333; }
+        .stat-badge.diamond { background: linear-gradient(135deg, #b9f2ff, #7dd3fc); color: #333; }
+        .stat-badge.rose    { background: linear-gradient(135deg, #ffb6c1, #ff8fa3); color: #333; }
+        .stat-icon  { width: 24px; height: 24px; }
+        .stat-value { font-weight: 800; font-size: 1rem; }
+
+        /* ── Content sections ── */
         .content-section {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
-            margin: 15px;
-            border-radius: 15px;
-            padding: 15px;
+            margin: 14px;
+            border-radius: 16px;
+            padding: 16px;
         }
         .section-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 1rem; font-weight: 800;
+            margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
         }
+
+        /* ── Menu grid ── */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
         }
         .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: transform 0.2s;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 7px;
+            cursor: pointer; transition: transform 0.2s;
         }
-        .menu-item:hover { transform: scale(1.1); }
+        .menu-item:hover { transform: scale(1.08); }
         .menu-icon {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             background: rgba(255,255,255,0.2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem;
         }
-        .menu-label { font-size: 0.85rem; text-align: center; }
-        .menu-list { background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; }
+        .menu-label { font-size: 0.82rem; text-align: center; font-weight: 600; }
+
+        /* ── Menu list ── */
+        .menu-list { background: rgba(255,255,255,0.1); border-radius: 14px; overflow: hidden; }
         .menu-list-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
+            display: flex; align-items: center;
+            padding: 14px 16px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            cursor: pointer;
-            transition: background 0.2s;
+            cursor: pointer; transition: background 0.2s;
         }
-        .menu-list-item:hover { background: rgba(255,255,255,0.1); }
+        .menu-list-item:hover   { background: rgba(255,255,255,0.1); }
         .menu-list-item:last-child { border-bottom: none; }
         .menu-list-icon {
-            width: 30px;
-            height: 30px;
-            margin-right: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 32px; height: 32px; margin-right: 12px;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.2rem;
         }
-        .menu-list-text { flex: 1; text-align: left; }
-        .menu-list-value { color: rgba(255,255,255,0.7); margin-right: 10px; }
-        .menu-arrow { opacity: 0.7; }
+        .menu-list-text  { flex: 1; text-align: left; font-weight: 600; font-size: 0.95rem; }
+        .menu-list-value { color: rgba(255,255,255,0.75); margin-right: 8px; font-size: 0.88rem; }
+        .menu-arrow      { opacity: 0.7; font-size: 1.1rem; }
+
+        /* ── Bottom nav ── */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255,255,255,0.95);
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.97);
             backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
+            display: flex; justify-content: space-around;
             padding: 10px 0;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             z-index: 1000;
         }
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            padding: 5px 20px;
-            cursor: pointer;
-            text-decoration: none;
-            color: #999;
-            transition: color 0.3s;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 3px;
+            padding: 5px 20px; cursor: pointer;
+            text-decoration: none; color: #999;
+            transition: color 0.2s;
         }
         .nav-item.active { color: #667eea; }
-        .nav-icon { font-size: 1.5rem; }
-        .nav-label { font-size: 0.75rem; font-weight: 500; }
+        .nav-icon  { font-size: 1.5rem; }
+        .nav-label { font-size: 0.75rem; font-weight: 700; }
 
-        /* Toast */
+        /* ── Toast ── */
         .toast-container {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
+            position: fixed; bottom: 90px; left: 50%;
+            transform: translateX(-50%); z-index: 9999;
         }
         .toast-msg {
-            background: rgba(0,0,0,0.75);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            animation: fadeInOut 2s ease forwards;
+            background: rgba(0,0,0,0.78);
+            color: white; padding: 10px 22px;
+            border-radius: 20px; font-size: 0.88rem;
+            font-weight: 700;
+            animation: fadeInOut 2.2s ease forwards;
+            white-space: nowrap;
         }
         @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(10px); }
-            20% { opacity: 1; transform: translateY(0); }
-            80% { opacity: 1; }
+            0%   { opacity: 0; transform: translateY(10px); }
+            15%  { opacity: 1; transform: translateY(0); }
+            80%  { opacity: 1; }
             100% { opacity: 0; }
+        }
+
+        /* ── Skeleton loader ── */
+        .skeleton {
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            animation: pulse 1.4s ease infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
         }
     </style>
 </head>
@@ -252,21 +220,22 @@
         <div class="edit-btn" onclick="editProfile()">✏️</div>
 
         <div class="profile-avatar-container">
-            <img src="" alt="Profile" class="profile-avatar" id="userPhoto">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23ffffff30'/%3E%3Ccircle cx='60' cy='45' r='20' fill='%23ffffff50'/%3E%3Cellipse cx='60' cy='95' rx='30' ry='20' fill='%23ffffff50'/%3E%3C/svg%3E"
+                 alt="Profile" class="profile-avatar" id="userPhoto">
             <div class="live-badge">🔴 LIVE</div>
         </div>
 
         <div class="profile-name" id="profileNameRow">
             <span id="userName">Loading...</span>
-            <img src="" alt="Country" class="country-flag" id="countryFlag" style="display:none;">
-            <span class="gender-text" id="genderIcon"></span>
+            <img src="" alt="" class="country-flag" id="countryFlag" style="display:none;">
+            <span id="genderIcon"></span>
         </div>
 
-        <!-- ── Numeric User ID ── -->
+        <!-- ── User ID ── -->
         <div class="user-id">
             <span>ID:</span>
-            <span class="user-id-number" id="userId">------</span>
-            <span class="copy-id" onclick="copyUserId()">📋</span>
+            <span class="user-id-number" id="userId">--------</span>
+            <span class="copy-id" onclick="copyUserId()" title="Copy ID">📋</span>
         </div>
 
         <div class="stats-container">
@@ -285,6 +254,7 @@
         </div>
     </div>
 
+    <!-- Level grid -->
     <div class="content-section">
         <div class="section-title">👑 My Level</div>
         <div class="menu-grid">
@@ -307,6 +277,7 @@
         </div>
     </div>
 
+    <!-- Menu list -->
     <div class="content-section">
         <div class="menu-list">
             <div class="menu-list-item" onclick="alert('Celebrity Gifts')">
@@ -316,28 +287,33 @@
             </div>
             <div class="menu-list-item" onclick="window.location.href='profile-edit.html'">
                 <div class="menu-list-icon">👤</div>
-                <div class="menu-list-text">My profile</div>
+                <div class="menu-list-text">My Profile</div>
                 <span class="menu-arrow">›</span>
             </div>
             <div class="menu-list-item" onclick="alert('My Agency')">
                 <div class="menu-list-icon">🏢</div>
-                <div class="menu-list-text">My agency</div>
-                <span style="margin-right: 10px;">💰</span>
+                <div class="menu-list-text">My Agency</div>
+                <span class="menu-arrow">›</span>
             </div>
             <div class="menu-list-item" onclick="alert('My Invitation')">
                 <div class="menu-list-icon">💌</div>
-                <div class="menu-list-text">My invitation</div>
+                <div class="menu-list-text">My Invitation</div>
                 <span class="menu-arrow">›</span>
             </div>
             <div class="menu-list-item" onclick="alert('My Chat Price')">
                 <div class="menu-list-icon">🥭</div>
-                <div class="menu-list-text">My chat price</div>
+                <div class="menu-list-text">My Chat Price</div>
                 <div class="menu-list-value" id="chatPrice">1260 🥭/min</div>
                 <span class="menu-arrow">›</span>
             </div>
-            <div class="menu-list-item" onclick="logout()">
+            <div class="menu-list-item" onclick="goToSettings()">
                 <div class="menu-list-icon">⚙️</div>
-                <div class="menu-list-text">Setting</div>
+                <div class="menu-list-text">Settings</div>
+                <span class="menu-arrow">›</span>
+            </div>
+            <div class="menu-list-item" onclick="logout()">
+                <div class="menu-list-icon">🚪</div>
+                <div class="menu-list-text">Logout</div>
                 <span class="menu-arrow">›</span>
             </div>
         </div>
@@ -365,6 +341,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        /* ── Auth ── */
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -373,88 +350,101 @@
             }
         });
 
+        /* ── Load profile ── */
         async function loadUserProfile(uid) {
             try {
                 const doc = await db.collection('users').doc(uid).get();
 
-                if (doc.exists) {
-                    const data = doc.data();
-
-                    // Photo
-                    document.getElementById('userPhoto').src = data.photoURL || 'https://via.placeholder.com/120';
-
-                    // Name
-                    document.getElementById('userName').textContent = data.name || 'User';
-
-                    // ── Numeric User ID দেখাও ──
-                    document.getElementById('userId').textContent = data.userId || '------';
-
-                    // Country flag
-                    if (data.country) {
-                        const flagEl = document.getElementById('countryFlag');
-                        flagEl.src = getCountryFlag(data.country);
-                        flagEl.style.display = 'inline-block';
-                    }
-
-                    // Gender icon
-                    if (data.gender) {
-                        document.getElementById('genderIcon').textContent =
-                            data.gender === 'male' ? '♂️' : '♀️';
-                    }
-
-                    // Stats
-                    document.getElementById('goldStat').textContent    = data.goldCoins || 0;
-                    document.getElementById('roseStat').textContent     = data.roses || 0;
-                    document.getElementById('diamondStat').textContent  = data.diamonds || 0;
-
-                    // Chat price
-                    document.getElementById('chatPrice').textContent = (data.chatPrice || 1260) + ' 🥭/min';
-
-                } else {
+                if (!doc.exists) {
                     window.location.href = 'profile-setup.html';
+                    return;
                 }
+
+                const data = doc.data();
+
+                /* Photo */
+                if (data.photoURL) {
+                    document.getElementById('userPhoto').src = data.photoURL;
+                }
+
+                /* Name */
+                document.getElementById('userName').textContent = data.name || 'User';
+
+                /* ── User ID ── */
+                if (data.userId) {
+                    document.getElementById('userId').textContent = data.userId;
+                } else {
+                    document.getElementById('userId').textContent = 'N/A';
+                }
+
+                /* Country flag */
+                if (data.countryCode) {
+                    const flagEl = document.getElementById('countryFlag');
+                    flagEl.src   = `https://flagcdn.com/w40/${data.countryCode.toLowerCase()}.png`;
+                    flagEl.style.display = 'inline-block';
+                } else if (data.country) {
+                    const flagEl = document.getElementById('countryFlag');
+                    flagEl.src   = `https://flagcdn.com/w40/${data.country.toLowerCase()}.png`;
+                    flagEl.style.display = 'inline-block';
+                }
+
+                /* Gender */
+                if (data.gender) {
+                    document.getElementById('genderIcon').textContent =
+                        data.gender.toLowerCase() === 'male' ? '♂️' : '♀️';
+                }
+
+                /* Stats */
+                document.getElementById('goldStat').textContent    = data.goldCoins || 0;
+                document.getElementById('roseStat').textContent     = data.roses     || 0;
+                document.getElementById('diamondStat').textContent  = data.diamonds  || 0;
+
+                /* Chat price */
+                document.getElementById('chatPrice').textContent =
+                    (data.chatPrice || 1260) + ' 🥭/min';
+
             } catch (error) {
-                showToast('Error: ' + error.message);
+                showToast('Failed to load profile: ' + error.message);
             }
         }
 
-        function getCountryFlag(countryCode) {
-            const code = countryCode.toLowerCase();
-            return `https://flagcdn.com/w40/${code}.png`;
-        }
-
+        /* ── Copy User ID ── */
         function copyUserId() {
             const userId = document.getElementById('userId').textContent;
-            if (userId === '------') return;
-            navigator.clipboard.writeText(userId).then(() => {
-                showToast('✅ ID copied: ' + userId);
-            }).catch(() => {
+            if (!userId || userId === '--------' || userId === 'N/A') {
+                showToast('No ID found.');
+                return;
+            }
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(userId)
+                    .then(() => showToast('✅ ID copied: ' + userId))
+                    .catch(() => showToast('ID: ' + userId));
+            } else {
                 showToast('ID: ' + userId);
-            });
-        }
-
-        function editProfile() {
-            window.location.href = 'profile-edit.html';
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                auth.signOut().then(() => {
-                    window.location.href = 'login.html';
-                }).catch((error) => {
-                    showToast('Error: ' + error.message);
-                });
             }
         }
 
+        function editProfile()  { window.location.href = 'profile-edit.html'; }
+        function goToSettings() { window.location.href = 'settings.html'; }
+
+        /* ── Logout ── */
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut()
+                    .then(() => window.location.href = 'login.html')
+                    .catch((err) => showToast('Error: ' + err.message));
+            }
+        }
+
+        /* ── Toast ── */
         function showToast(message) {
             const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
+            const toast     = document.createElement('div');
             toast.className = 'toast-msg';
             toast.textContent = message;
             container.innerHTML = '';
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 2200);
+            setTimeout(() => toast.remove(), 2400);
         }
     </script>
 </body>
